@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField
+from wtforms import StringField, SubmitField, TextAreaField, IntegerField
 from wtforms.validators import ValidationError, DataRequired, Length
 import sqlalchemy as sa
 from flask_babel import _, lazy_gettext as _l
@@ -33,3 +33,10 @@ class PostForm(FlaskForm):
     post = TextAreaField(_l('Say something'), validators=[
         DataRequired(), Length(min=1, max=140)])
     submit = SubmitField(_l('Submit'))
+
+class PetForm(FlaskForm):
+    name = StringField('Pet Name', validators=[DataRequired()])
+    species = StringField('Species')
+    age = IntegerField('Age')
+    bio = TextAreaField('Bio')
+    submit = SubmitField('Add Pet')
