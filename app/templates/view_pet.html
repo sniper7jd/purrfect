@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Pet Details - {{ pet.name }}</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ pet.photo_url or url_for('static', filename='default_pet.png') }}" class="img-fluid" alt="{{ pet.name }}">
+        </div>
+        <div class="col-md-6">
+            <h3>{{ pet.name }}</h3>
+            <p><strong>Species:</strong> {{ pet.species }}</p>
+            <p><strong>Age:</strong> {{ pet.age }} years</p>
+            {% if pet.bio %}
+                <p><strong>Bio:</strong> {{ pet.bio }}</p>
+            {% endif %}
+            {% if pet.interests %}
+                <p><strong>Interests:</strong> {{ pet.interests }}</p>
+            {% endif %}
+            <p><strong>Status:</strong>
+                {% if pet.active %}
+                    <span class="text-success">Active</span>
+                {% else %}
+                    <span class="text-muted">Inactive</span>
+                {% endif %}
+            </p>
+            <a href="{{ url_for('main.edit_pet', pet_id=pet.id) }}" class="btn btn-primary">Edit Pet</a>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to Active Pets</a>
+    </div>
+</div>
+{% endblock %}
