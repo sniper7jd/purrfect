@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from flask import render_template, flash, redirect, url_for, request, g, \
-    current_app
+    current_app, abort
 from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 import sqlalchemy as sa
@@ -24,8 +24,26 @@ def before_request():
 @bp.route('/index', methods=['GET'])
 @login_required
 def index():
-    return render_template('index.html', title='Home')
+    active_pets = Pet.query.filter_by(is_active=1).all()  # Fetch all active pets
+    return render_template('index.html', active_pets=active_pets)
 
+@bp.route('/blog')
+def blog():
+    return render_template('blog.html', title="Blog")
+
+@bp.route('/events')
+def events():
+    return render_template('events.html', title="Events")
+
+
+@bp.route('/adoption')
+def adoption():
+    return render_template('adoption.html', title="Adoption")
+
+@bp.route('/pet/<int:pet_id>')
+def view_pet(pet_id):
+    pet = Pet.query.get_or_404(pet_id)  # Fetch the pet by its ID
+    return render_template('view_pet.html', pet=pet)
 
 @bp.route('/explore')
 @login_required
@@ -53,13 +71,33 @@ def add_pet():
             species=form.species.data,
             age=form.age.data,
             bio=form.bio.data,
+            interests=form.interests.data,
+            photo_url=form.photo_url.data,
+            is_active=form.is_active.data,
             owner=current_user
         )
         db.session.add(pet)
         db.session.commit()
         flash('Your pet has been added!', 'success')
-        return redirect(url_for('dashboard'))  # Or wherever you want
+        return redirect(url_for(''))  # Adjust the redirect target as needed
     return render_template('add_pet.html', form=form)
+
+@bp.route('/edit_pet/<int:pet_id>', methods=['GET', 'POST'])
+@login_required
+def edit_pet(pet_id):
+    pet = db.get_or_404(Pet, pet_id)
+    if pet.owner != current_user:
+        abort(403)
+
+    form = PetForm(obj=pet)
+    if form.validate_on_submit():
+        form.populate_obj(pet)
+        db.session.commit()
+        flash('Pet information updated!', 'success')
+        return redirect(url_for('main.user', username=current_user.username))
+
+    return render_template('edit_pet.html', form=form, pet=pet)
+
 
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])

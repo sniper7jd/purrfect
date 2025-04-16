@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, TextAreaField, IntegerField
-from wtforms.validators import ValidationError, DataRequired, Length
+from wtforms.fields.simple import BooleanField
+from wtforms.validators import ValidationError, DataRequired, Length, Optional, URL
 import sqlalchemy as sa
 from flask_babel import _, lazy_gettext as _l
 from app import db
@@ -36,7 +37,10 @@ class PostForm(FlaskForm):
 
 class PetForm(FlaskForm):
     name = StringField('Pet Name', validators=[DataRequired()])
-    species = StringField('Species')
-    age = IntegerField('Age')
-    bio = TextAreaField('Bio')
+    species = StringField('Species', validators=[Optional()])
+    age = IntegerField('Age', validators=[Optional()])
+    bio = TextAreaField('Bio', validators=[Optional()])
+    interests = StringField('Interests', validators=[Optional()])
+    photo_url = StringField('Photo URL', validators=[Optional(), URL()])
+    is_active = BooleanField('Active?', default=True)
     submit = SubmitField('Add Pet')

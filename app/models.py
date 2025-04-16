@@ -70,7 +70,7 @@ class Pet(db.Model):
     user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey('users.id', ondelete='CASCADE'))
     name: so.Mapped[str] = so.mapped_column(sa.String(100))
     age: so.Mapped[Optional[int]] = so.mapped_column()
-    breed: so.Mapped[Optional[str]] = so.mapped_column(sa.String(100))
+    species: so.Mapped[Optional[str]] = so.mapped_column(sa.String(100))
     bio: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
     interests: so.Mapped[Optional[str]] = so.mapped_column(sa.String(200))
     photo_url: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))

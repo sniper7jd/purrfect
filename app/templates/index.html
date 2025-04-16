@@ -3,24 +3,30 @@
 
 {% block content %}
     <h1>{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
-    {% if form %}
-    {{ wtf.quick_form(form) }}
-    {% endif %}
-    {% for post in posts %}
-        {% include '_post.html' %}
-    {% endfor %}
-    <nav aria-label="Post navigation">
-        <ul class="pagination">
-            <li class="page-item{% if not prev_url %} disabled{% endif %}">
-                <a class="page-link" href="{{ prev_url }}">
-                    <span aria-hidden="true">&larr;</span> {{ _('Newer posts') }}
-                </a>
-            </li>
-            <li class="page-item{% if not next_url %} disabled{% endif %}">
-                <a class="page-link" href="{{ next_url }}">
-                    {{ _('Older posts') }} <span aria-hidden="true">&rarr;</span>
-                </a>
-            </li>
-        </ul>
-    </nav>
+    <div class="container mt-5">
+    <h2 class="text-center mb-4">Active Pets</h2>
+
+    <div class="row">
+        {% for pet in active_pets %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ pet.photo_url or url_for('static', filename='default_pet.png') }}" class="card-img-top" alt="{{ pet.name }}" style="object-fit: cover; height: 250px;">
+                    <div class="card-body">
+                        <h4 class="card-title">{{ pet.name }}</h4>
+                        <p><strong>Species:</strong> {{ pet.species }}</p>
+                        <p><strong>Age:</strong> {{ pet.age }} years</p>
+                        <p><strong>Status:</strong>
+                            {% if pet.active %}
+                                <span class="text-success">Active</span>
+                            {% else %}
+                                <span class="text-muted">Inactive</span>
+                            {% endif %}
+                        </p>
+                        <a href="{{ url_for('main.view_pet', pet_id=pet.id) }}" class="btn btn-outline-info btn-sm">View Pet</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
