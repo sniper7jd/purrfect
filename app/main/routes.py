@@ -79,7 +79,7 @@ def add_pet():
         db.session.add(pet)
         db.session.commit()
         flash('Your pet has been added!', 'success')
-        return redirect(url_for(''))  # Adjust the redirect target as needed
+        return redirect(url_for('main.user', username=current_user.username))  # Adjust the redirect target as needed
     return render_template('add_pet.html', form=form)
 
 @bp.route('/edit_pet/<int:pet_id>', methods=['GET', 'POST'])
