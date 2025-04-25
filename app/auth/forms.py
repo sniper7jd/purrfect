@@ -1,7 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_babel import _, lazy_gettext as _l
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from wtforms.fields.numeric import IntegerField
+from wtforms.fields.simple import TextAreaField
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo, NumberRange, Length
 import sqlalchemy as sa
 from app import db
 from app.models import User
@@ -47,3 +49,10 @@ class ResetPasswordForm(FlaskForm):
         _l('Repeat Password'), validators=[DataRequired(),
                                            EqualTo('password')])
     submit = SubmitField(_l('Request Password Reset'))
+
+class PetForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired(), Length(min=1, max=50)])
+    species = StringField('Species', validators=[DataRequired(), Length(min=1, max=50)])
+    age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=0, max=100)])
+    bio = TextAreaField('Bio', validators=[Length(max=500)])
+    submit = SubmitField('Add Pet')
