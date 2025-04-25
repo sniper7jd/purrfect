@@ -2,6 +2,23 @@
 {% import "bootstrap_wtf.html" as wtf %}
 
 {% block content %}
+<style>
+  .custom-border {
+    border: 2px solid orange !important;
+  }
+
+  .btn-pink {
+    background-color: #ff69b4;
+    border-color: #ff69b4;
+    color: white;
+  }
+
+  .btn-pink:hover {
+    background-color: #ff1493;
+    border-color: #ff1493;
+  }
+</style>
+
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-8">
@@ -12,7 +29,7 @@
 
         <div class="mb-3">
           {{ form.name.label(class="form-label") }}
-          {{ form.name(class="form-control", placeholder="Enter pet's name") }}
+          {{ form.name(class="form-control custom-border", placeholder="Enter pet's name") }}
           {% for error in form.name.errors %}
             <div class="text-danger">{{ error }}</div>
           {% endfor %}
@@ -20,7 +37,7 @@
 
         <div class="mb-3">
           {{ form.species.label(class="form-label") }}
-          {{ form.species(class="form-control", placeholder="e.g., Dog, Cat") }}
+          {{ form.species(class="form-control custom-border", placeholder="e.g., Dog, Cat") }}
           {% for error in form.species.errors %}
             <div class="text-danger">{{ error }}</div>
           {% endfor %}
@@ -28,7 +45,7 @@
 
         <div class="mb-3">
           {{ form.age.label(class="form-label") }}
-          {{ form.age(class="form-control", placeholder="Age in years") }}
+          {{ form.age(class="form-control custom-border", placeholder="Age in years") }}
           {% for error in form.age.errors %}
             <div class="text-danger">{{ error }}</div>
           {% endfor %}
@@ -36,7 +53,7 @@
 
         <div class="mb-3">
           {{ form.bio.label(class="form-label") }}
-          {{ form.bio(class="form-control", placeholder="Tell us about your pet", rows="4") }}
+          {{ form.bio(class="form-control custom-border", placeholder="Tell us about your pet", rows="4") }}
           {% for error in form.bio.errors %}
             <div class="text-danger">{{ error }}</div>
           {% endfor %}
@@ -44,7 +61,7 @@
 
         <div class="mb-3">
           {{ form.interests.label(class="form-label") }}
-          {{ form.interests(class="form-control", placeholder="What does your pet like?") }}
+          {{ form.interests(class="form-control custom-border", placeholder="What does your pet like?") }}
           {% for error in form.interests.errors %}
             <div class="text-danger">{{ error }}</div>
           {% endfor %}
@@ -52,14 +69,14 @@
 
         <div class="mb-3">
           {{ form.photo_url.label(class="form-label") }}
-          {{ form.photo_url(class="form-control", placeholder="Link to pet's photo") }}
+          {{ form.photo_url(class="form-control custom-border", placeholder="Link to pet's photo") }}
           {% for error in form.photo_url.errors %}
             <div class="text-danger">{{ error }}</div>
           {% endfor %}
         </div>
 
         <div class="form-check mb-3">
-          {{ form.is_active(class="form-check-input") }}
+          {{ form.is_active(class="form-check-input custom-border") }}
           {{ form.is_active.label(class="form-check-label") }}
           {% for error in form.is_active.errors %}
             <div class="text-danger">{{ error }}</div>
@@ -67,7 +84,7 @@
         </div>
 
         <div class="text-center">
-          {{ form.submit(class="btn btn-primary") }}
+          {{ form.submit(class="btn btn-pink") }}
         </div>
       </form>
     </div>

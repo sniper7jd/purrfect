@@ -2,27 +2,35 @@
 {% import "bootstrap_wtf.html" as wtf %}
 
 {% block content %}
-    <h1>{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
-    <div class="container mt-5">
-    <h2 class="text-center mb-4">Active Pets</h2>
+<h1 class="mt-4">{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
 
-    <div class="row">
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold">🐾 Active Pets</h2>
+        <p class="text-muted">Here are your currently active companions.</p>
+    </div>
+
+    <div class="row g-4">
         {% for pet in active_pets %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <img src="{{ pet.photo_url or url_for('static', filename='default_pet.png') }}" class="card-img-top" alt="{{ pet.name }}" style="object-fit: cover; height: 250px;">
+            <div class="col-sm-6 col-md-4">
+                <div class="card h-100 border-0 shadow rounded-4">
+                    <img src="{{ pet.photo_url or url_for('static', filename='default_pet.png') }}"
+                         class="card-img-top rounded-top-4"
+                         alt="{{ pet.name }}"
+                         style="object-fit: cover; height: 250px;">
+
                     <div class="card-body">
-                        <h4 class="card-title">{{ pet.name }}</h4>
-                        <p><strong>Species:</strong> {{ pet.species }}</p>
-                        <p><strong>Age:</strong> {{ pet.age }} years</p>
-                        <p><strong>Status:</strong>
+                        <h5 class="card-title fw-semibold">{{ pet.name }}</h5>
+                        <p class="mb-1"><strong>Species:</strong> {{ pet.species }}</p>
+                        <p class="mb-1"><strong>Age:</strong> {{ pet.age }} years</p>
+                        <p class="mb-2"><strong>Status:</strong>
                             {% if pet.active %}
-                                <span class="text-success">Active</span>
+                                <span class="badge bg-success">Active</span>
                             {% else %}
-                                <span class="text-muted">Inactive</span>
+                                <span class="badge bg-secondary">Inactive</span>
                             {% endif %}
                         </p>
-                        <a href="{{ url_for('main.view_pet', pet_id=pet.id) }}" class="btn btn-outline-info btn-sm">View Pet</a>
+                        <a href="{{ url_for('main.view_pet', pet_id=pet.id) }}" class="btn btn-info btn-sm w-100">View Pet</a>
                     </div>
                 </div>
             </div>
@@ -30,3 +38,4 @@
     </div>
 </div>
 {% endblock %}
+
