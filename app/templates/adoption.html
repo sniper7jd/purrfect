@@ -1,0 +1,60 @@
+<!-- static/adoption.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Adoptable Pets</title>
+  <style>
+    .pet-card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 10px;
+      width: 200px;
+      display: inline-block;
+      vertical-align: top;
+      text-align: center;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Adoptable Pets</h1>
+<div id="pets"></div>
+
+<script>
+  async function fetchPets() {
+    const response = await fetch('/api/pets'); // now calling YOUR backend
+    const pets = await response.json();
+    displayPets(pets);
+  }
+
+  function displayPets(pets) {
+    const petsDiv = document.getElementById('pets');
+    petsDiv.innerHTML = '';
+
+    pets.forEach(pet => {
+      const petCard = document.createElement('div');
+      petCard.className = 'pet-card';
+
+      petCard.innerHTML = `
+        <h3>${pet.name}</h3>
+        ${pet.photos[0] ? `<img src="${pet.photos[0].medium}" alt="${pet.name}"/>` : ''}
+        <p><strong>Breed:</strong> ${pet.breeds.primary}</p>
+        <p><strong>Age:</strong> ${pet.age}</p>
+        <p><strong>Gender:</strong> ${pet.gender}</p>
+      `;
+
+      petsDiv.appendChild(petCard);
+    });
+  }
+
+  fetchPets();
+</script>
+
+</body>
+</html>

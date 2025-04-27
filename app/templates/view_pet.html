@@ -28,6 +28,9 @@
         </div>
     </div>
 
+<button onclick="window.location.href='{{ url_for('main.chat', user_id=pet.owner.id) }}'">Message Owner</button>
+
+
     <div class="text-center mt-4">
         <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to Active Pets</a>
     </div>
