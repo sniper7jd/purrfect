@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import requests
 from flask import render_template, flash, redirect, url_for, request, g, \
-    current_app, abort
+    current_app, abort, jsonify
 from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 import sqlalchemy as sa
@@ -21,6 +21,30 @@ def before_request():
         current_user.last_seen = datetime.now(timezone.utc)
         db.session.commit()
     g.locale = str(get_locale())
+
+@bp.route('/like/<int:pet_id>', methods=['POST'])
+@login_required
+def like_pet(pet_id):
+    pet = db.session.get(Pet, pet_id)
+    if pet is None:
+        flash('Pet not found.', 'danger')
+        return redirect(url_for('index'))
+
+    current_user.like_pet(pet)
+    flash('You liked the pet!', 'success')
+    return redirect(request.referrer or url_for('index'))
+
+@bp.route('/unlike/<int:pet_id>', methods=['POST'])
+@login_required
+def unlike_pet(pet_id):
+    pet = db.session.get(Pet, pet_id)
+    if pet is None:
+        flash('Pet not found.', 'danger')
+        return redirect(url_for('index'))
+
+    current_user.unlike_pet(pet)
+    flash('You unliked the pet.', 'info')
+    return redirect(request.referrer or url_for('index'))
 
 @bp.route('/chat/<int:user_id>', methods=["GET", "POST"])
 @login_required
