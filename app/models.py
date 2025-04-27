@@ -57,6 +57,38 @@ class User(UserMixin, db.Model):
             return
         return db.session.get(User, id)
 
+    @property
+    def liked_pets(self):
+        return (
+            db.session.query(Pet)
+            .join(Like, Like.pet_id == Pet.id)
+            .filter(Like.user_id == self.id)
+            .all()
+        )
+
+    @property
+    def liked_pets_query(self):
+        return (
+            db.session.query(Pet)
+            .join(Like, Like.pet_id == Pet.id)
+            .filter(Like.user_id == self.id)
+        )
+
+    def has_liked_pet(self, pet: "Pet") -> bool:
+        return db.session.query(Like).filter_by(user_id=self.id, pet_id=pet.id).first() is not None
+
+    def like_pet(self, pet: "Pet") -> None:
+        if not self.has_liked_pet(pet):
+            like = Like(user=self, pet=pet)
+            db.session.add(like)
+            db.session.commit()
+
+    def unlike_pet(self, pet: "Pet") -> None:
+        like = db.session.query(Like).filter_by(user_id=self.id, pet_id=pet.id).first()
+        if like:
+            db.session.delete(like)
+            db.session.commit()
+
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))
