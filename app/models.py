@@ -10,9 +10,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from app import db, login
 
-
-
-
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
@@ -25,6 +22,7 @@ class User(UserMixin, db.Model):
     profile_picture: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     created_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
 
+    # Relationships
     pets: so.Mapped[List["Pet"]] = so.relationship(back_populates="owner", cascade="all, delete-orphan")
     likes: so.Mapped[List["Like"]] = so.relationship(back_populates="user", cascade="all, delete-orphan")
     sent_messages: so.Mapped[List["Message"]] = so.relationship(
@@ -84,7 +82,6 @@ class Pet(db.Model):
     def __repr__(self):
         return f"<Pet {self.name}>"
 
-
 class Like(db.Model):
     __tablename__ = 'likes'
 
@@ -101,7 +98,6 @@ class Like(db.Model):
     def __repr__(self):
         return f"<Like user_id={self.user_id} pet_id={self.pet_id}>"
 
-
 class Message(db.Model):
     __tablename__ = 'messages'
 
@@ -116,7 +112,6 @@ class Message(db.Model):
 
     def __repr__(self):
         return f"<Message from={self.sender_id} to={self.receiver_id}>"
-
 
 class PetImage(db.Model):
     __tablename__ = 'pet_images'
