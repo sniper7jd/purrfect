@@ -1,13 +1,16 @@
 from datetime import datetime, timezone
+
+import requests
 from flask import render_template, flash, redirect, url_for, request, g, \
-    current_app, abort
+    current_app, abort, jsonify
 from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 import sqlalchemy as sa
 from langdetect import detect, LangDetectException
 from app import db
-from app.main.forms import EditProfileForm, EmptyForm, PostForm, PetForm, BlogPostForm
-from app.models import User, Pet
+
+from app.main.forms import EditProfileForm, EmptyForm, PostForm, PetForm
+from app.models import User, Pet, Message
 from app.translate import translate
 from app.main import bp
 
@@ -19,6 +22,70 @@ def before_request():
         db.session.commit()
     g.locale = str(get_locale())
 
+@bp.route('/like/<int:pet_id>', methods=['POST'])
+@login_required
+def like_pet(pet_id):
+    pet = db.session.get(Pet, pet_id)
+    if pet is None:
+        flash('Pet not found.', 'danger')
+        return redirect(url_for('index'))
+
+    current_user.like_pet(pet)
+    flash('You liked the pet!', 'success')
+    return redirect(request.referrer or url_for('index'))
+
+@bp.route('/unlike/<int:pet_id>', methods=['POST'])
+@login_required
+def unlike_pet(pet_id):
+    pet = db.session.get(Pet, pet_id)
+    if pet is None:
+        flash('Pet not found.', 'danger')
+        return redirect(url_for('index'))
+
+    current_user.unlike_pet(pet)
+    flash('You unliked the pet.', 'info')
+    return redirect(request.referrer or url_for('index'))
+
+@bp.route('/chat/<int:user_id>', methods=["GET", "POST"])
+@login_required
+def chat(user_id):
+    user = current_user
+    other_user = User.query.get(user_id)
+
+    if other_user is None:
+        return redirect(url_for('main.messages'))  # Redirect if user not found
+
+    # Get all messages between the current user and the other user
+    sent_messages = Message.query.filter_by(sender_id=user.id, receiver_id=other_user.id).all()
+    received_messages = Message.query.filter_by(sender_id=other_user.id, receiver_id=user.id).all()
+
+    # Combine both lists and sort them by sent_at (ascending order)
+    messages = sorted(sent_messages + received_messages, key=lambda x: x.sent_at)
+
+    if request.method == "POST":
+        content = request.form['content'].strip()  # Get the message content
+        if content:  # Ensure message is not empty
+            message = Message(sender_id=user.id, receiver_id=other_user.id, content=content)
+            db.session.add(message)
+            db.session.commit()
+
+        # After sending the message, redirect to the same chat page to show the new message
+        return redirect(url_for('main.chat', user_id=other_user.id))
+
+    # Render the chat page with messages
+    return render_template('chat.html', user=other_user, messages=messages)
+
+@bp.route('/messages')
+@login_required
+def messages():
+    user = current_user
+    # Get the list of users the current user has messaged (either sent or received)
+    sent_users = [msg.receiver for msg in user.sent_messages]
+    received_users = [msg.sender for msg in user.received_messages]
+
+    # Combine and remove duplicates
+    users = set(sent_users + received_users)
+    return render_template('message_list.html', users=users)
 
 @bp.route('/', methods=['GET'])
 @bp.route('/index', methods=['GET'])
@@ -31,25 +98,9 @@ def index():
 def blog():
     return render_template('blog.html', title="Blog")
 
-@bp.route('/blog-post', methods=['GET', 'POST'])
-def create_post():
-    form = BlogPostForm()
-    if form.validate_on_submit():
-        new_post = {
-            'title': form.title.data,
-            'content': form.content.data,
-            'author': 'Anonymous',  # Replace with current_user if using login
-            'date_posted': datetime.now()
-        }
-        posts.insert(0, new_post)
-        return redirect(url_for('blog'))
-    return render_template('create_post.html', form=form)
-
-
 @bp.route('/events')
 def events():
     return render_template('events.html', title="Events")
-
 
 @bp.route('/adoption')
 def adoption():
@@ -94,7 +145,7 @@ def add_pet():
         db.session.add(pet)
         db.session.commit()
         flash('Your pet has been added!', 'success')
-        return redirect(url_for(''))  # Adjust the redirect target as needed
+        return redirect(url_for('main.user', username=current_user.username))  # Adjust the redirect target as needed
     return render_template('add_pet.html', form=form)
 
 @bp.route('/edit_pet/<int:pet_id>', methods=['GET', 'POST'])
