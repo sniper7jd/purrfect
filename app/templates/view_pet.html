@@ -1,41 +1,44 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="card shadow-lg border-0 mx-auto" style="max-width: 900px;">
-        <div class="row g-0">
-            <div class="col-md-6">
-                <img src="{{ pet.photo_url or url_for('static', filename='default_pet.png') }}"
-                     class="img-fluid rounded-start h-100 w-100 object-fit-cover"
-                     alt="{{ pet.name }}"
-                     style="object-fit: cover;">
-            </div>
-            <div class="col-md-6 p-4">
-                <h2 class="card-title mb-3">{{ pet.name }}</h2>
-                <ul class="list-unstyled">
-                    <li><strong>Species:</strong> {{ pet.species }}</li>
-                    <li><strong>Age:</strong> {{ pet.age }} years</li>
-                    {% if pet.bio %}
-                        <li><strong>Bio:</strong> {{ pet.bio }}</li>
-                    {% endif %}
-                    {% if pet.interests %}
-                        <li><strong>Interests:</strong> {{ pet.interests }}</li>
-                    {% endif %}
-                    <li><strong>Status:</strong>
-                        {% if pet.active %}
-                            <span class="badge bg-success">Active</span>
-                        {% else %}
-                            <span class="badge bg-secondary">Inactive</span>
-                        {% endif %}
-                    </li>
-                </ul>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Pet Details - {{ pet.name }}</h2>
 
-                <div class="d-flex gap-2 mt-4">
-                    <a href="{{ url_for('main.edit_pet', pet_id=pet.id) }}" class="btn btn-outline-primary">Edit Pet</a>
-                    <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">Back to Active Pets</a>
-                </div>
-            </div>
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ pet.photo_url or url_for('static', filename='default_pet.png') }}" class="img-fluid" alt="{{ pet.name }}">
+        </div>
+        <div class="col-md-6">
+            <h3>{{ pet.name }}</h3>
+            <p><strong>Species:</strong> {{ pet.species }}</p>
+            <p><strong>Age:</strong> {{ pet.age }} years</p>
+            {% if pet.bio %}
+                <p><strong>Bio:</strong> {{ pet.bio }}</p>
+            {% endif %}
+            {% if pet.interests %}
+                <p><strong>Interests:</strong> {{ pet.interests }}</p>
+            {% endif %}
+
+            {% if current_user.has_liked_pet(pet) %}
+                <form action="{{ url_for('main.unlike_pet', pet_id=pet.id) }}" method="post">
+                    <button type="submit">Unlike ❤️</button>
+                </form>
+            {% else %}
+                <form action="{{ url_for('main.like_pet', pet_id=pet.id) }}" method="post">
+                    <button type="submit">Like 🤍</button>
+                </form>
+            {% endif %}
+
         </div>
     </div>
+
+<button onclick="window.location.href='{{ url_for('main.chat', user_id=pet.owner.id) }}'">Message Owner</button>
+
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to Active Pets</a>
+    </div>
 </div>
+
+
 {% endblock %}

@@ -10,9 +10,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from app import db, login
 
-
-
-
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
@@ -25,6 +22,7 @@ class User(UserMixin, db.Model):
     profile_picture: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     created_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
 
+    # Relationships
     pets: so.Mapped[List["Pet"]] = so.relationship(back_populates="owner", cascade="all, delete-orphan")
     likes: so.Mapped[List["Like"]] = so.relationship(back_populates="user", cascade="all, delete-orphan")
     sent_messages: so.Mapped[List["Message"]] = so.relationship(
@@ -59,6 +57,38 @@ class User(UserMixin, db.Model):
             return
         return db.session.get(User, id)
 
+    @property
+    def liked_pets(self):
+        return (
+            db.session.query(Pet)
+            .join(Like, Like.pet_id == Pet.id)
+            .filter(Like.user_id == self.id)
+            .all()
+        )
+
+    @property
+    def liked_pets_query(self):
+        return (
+            db.session.query(Pet)
+            .join(Like, Like.pet_id == Pet.id)
+            .filter(Like.user_id == self.id)
+        )
+
+    def has_liked_pet(self, pet: "Pet") -> bool:
+        return db.session.query(Like).filter_by(user_id=self.id, pet_id=pet.id).first() is not None
+
+    def like_pet(self, pet: "Pet") -> None:
+        if not self.has_liked_pet(pet):
+            like = Like(user=self, pet=pet)
+            db.session.add(like)
+            db.session.commit()
+
+    def unlike_pet(self, pet: "Pet") -> None:
+        like = db.session.query(Like).filter_by(user_id=self.id, pet_id=pet.id).first()
+        if like:
+            db.session.delete(like)
+            db.session.commit()
+
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))
@@ -84,7 +114,6 @@ class Pet(db.Model):
     def __repr__(self):
         return f"<Pet {self.name}>"
 
-
 class Like(db.Model):
     __tablename__ = 'likes'
 
@@ -101,7 +130,6 @@ class Like(db.Model):
     def __repr__(self):
         return f"<Like user_id={self.user_id} pet_id={self.pet_id}>"
 
-
 class Message(db.Model):
     __tablename__ = 'messages'
 
@@ -116,7 +144,6 @@ class Message(db.Model):
 
     def __repr__(self):
         return f"<Message from={self.sender_id} to={self.receiver_id}>"
-
 
 class PetImage(db.Model):
     __tablename__ = 'pet_images'
