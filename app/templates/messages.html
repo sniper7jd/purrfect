@@ -1,4 +1,7 @@
 <!-- messages.html -->
+{% extends "base.html" %}
+
+{% block content %}
 <h2>Your Messages</h2>
 
 <h3>Sent Messages</h3>
@@ -14,3 +17,5 @@
         <li><strong>From:</strong> {{ message.sender.username }} - {{ message.content }}</li>
     {% endfor %}
 </ul>
+
+{% endblock %}

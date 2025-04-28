@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h2>Chat with {{ user.username }}</h2>
 <div>
     {% for message in messages %}
@@ -9,3 +12,5 @@
     <textarea name="content" placeholder="Type a message" required></textarea>
     <button type="submit">Send</button>
 </form>
+
+{% endblock %}
