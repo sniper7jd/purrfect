@@ -6,7 +6,7 @@ from flask_babel import _, get_locale
 import sqlalchemy as sa
 from langdetect import detect, LangDetectException
 from app import db
-from app.main.forms import EditProfileForm, EmptyForm, PostForm, PetForm
+from app.main.forms import EditProfileForm, EmptyForm, PostForm, PetForm, BlogPostForm
 from app.models import User, Pet
 from app.translate import translate
 from app.main import bp
@@ -30,6 +30,21 @@ def index():
 @bp.route('/blog')
 def blog():
     return render_template('blog.html', title="Blog")
+
+@bp.route('/blog-post', methods=['GET', 'POST'])
+def create_post():
+    form = BlogPostForm()
+    if form.validate_on_submit():
+        new_post = {
+            'title': form.title.data,
+            'content': form.content.data,
+            'author': 'Anonymous',  # Replace with current_user if using login
+            'date_posted': datetime.now()
+        }
+        posts.insert(0, new_post)
+        return redirect(url_for('blog'))
+    return render_template('create_post.html', form=form)
+
 
 @bp.route('/events')
 def events():

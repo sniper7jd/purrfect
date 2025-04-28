@@ -44,3 +44,8 @@ class PetForm(FlaskForm):
     photo_url = StringField('Photo URL', validators=[Optional(), URL()])
     is_active = BooleanField('Active?', default=True)
     submit = SubmitField('Add Pet')
+
+class BlogPostForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    submit = SubmitField('Post')
