@@ -9,7 +9,7 @@ import sqlalchemy as sa
 from langdetect import detect, LangDetectException
 from app import db
 
-from app.main.forms import EditProfileForm, EmptyForm, PostForm, PetForm
+from app.main.forms import EditProfileForm, EmptyForm, PostForm, PetForm, BlogPostForm
 from app.models import User, Pet, Message
 from app.translate import translate
 from app.main import bp
@@ -125,6 +125,20 @@ def user(username):
     page = request.args.get('page', 1, type=int)
     form = EmptyForm()
     return render_template('user.html', user=user, form=form)
+
+@bp.route('/blog-post', methods=['GET', 'POST'])
+def create_post():
+    form = BlogPostForm()
+    if form.validate_on_submit():
+        new_post = {
+            'title': form.title.data,
+            'content': form.content.data,
+            'author': 'Anonymous',  # Replace with current_user if using login
+            'date_posted': datetime.now()
+        }
+        posts.insert(0, new_post)
+        return redirect(url_for('blog'))
+    return render_template('create_post.html', form=form)
 
 
 @bp.route('/add_pet', methods=['GET', 'POST'])
