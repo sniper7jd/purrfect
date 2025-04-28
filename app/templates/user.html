@@ -40,7 +40,7 @@
                             <p><strong>Species:</strong> {{ pet.species }}</p>
                             <p><strong>Age:</strong> {{ pet.age }} years</p>
                             <p><strong>Status:</strong>
-                                {% if pet.active %}
+                                {% if pet.is_active %}
                                     <span class="badge bg-success">Active</span>
                                 {% else %}
                                     <span class="badge badge-orange">Inactive</span>
