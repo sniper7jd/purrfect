@@ -50,8 +50,12 @@ def unlike_pet(pet_id):
 @login_required
 def chat(user_id):
     user = current_user
-    other_user = User.query.get(user_id)
 
+    if user.id == user_id:
+        flash("That's your pet!", "warning")
+        return redirect(url_for('main.index'))
+
+    other_user = User.query.get(user_id)
     if other_user is None:
         return redirect(url_for('main.messages'))  # Redirect if user not found
 
