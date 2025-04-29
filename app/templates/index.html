@@ -10,26 +10,136 @@
         <p class="text-muted">Here are your currently active companions.</p>
     </div>
 
-    <div class="row g-4">
-        {% for pet in active_pets %}
-            <div class="col-sm-6 col-md-4">
-                <div class="card h-100 border-0 shadow rounded-4">
-                    <img src="{{ pet.photo_url or url_for('static', filename='default_pet.png') }}"
-                         class="card-img-top rounded-top-4"
-                         alt="{{ pet.name }}"
-                         style="object-fit: cover; height: 250px;">
+    <!-- Search and Filter Form -->
+    <form method="GET" action="{{ url_for('main.index') }}" class="mb-4">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-3 position-relative">
+                <input type="text" name="search" id="search-box" class="form-control"
+                       placeholder="Search by name or species" autocomplete="off"
+                       value="{{ request.args.get('search', '') }}">
+                <div id="suggestions" class="list-group position-absolute w-100 z-3" style="max-height: 200px; overflow-y: auto;"></div>
+            </div>
 
-                    <div class="card-body">
-                        <h5 class="card-title fw-semibold">{{ pet.name }}</h5>
-                        <p class="mb-1"><strong>Species:</strong> {{ pet.species }}</p>
-                        <p class="mb-1"><strong>Age:</strong> {{ pet.age }} years</p>
-                        <p class="mb-1"><strong>Bio:</strong> {{ pet.bio }} years</p>
-                        <a href="{{ url_for('main.view_pet', pet_id=pet.id) }}" class="btn btn-info btn-sm w-100">View Pet</a>
+            <div class="col-md-2">
+                <select name="sort" class="form-select">
+                    <option value="">Sort By</option>
+                    <option value="alpha_asc" {% if request.args.get('sort') == 'alpha_asc' %}selected{% endif %}>A-Z</option>
+                    <option value="alpha_desc" {% if request.args.get('sort') == 'alpha_desc' %}selected{% endif %}>Z-A</option>
+                    <option value="location" {% if request.args.get('sort') == 'location' %}selected{% endif %}>Location</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select name="species" class="form-select">
+                    <option value="">All Species</option>
+                    {% for sp in species_choices %}
+                        <option value="{{ sp }}" {% if request.args.get('species') == sp %}selected{% endif %}>{{ sp }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select name="age" class="form-select">
+                    <option value="">Any Age</option>
+                    <option value="0-2" {% if request.args.get('age') == '0-2' %}selected{% endif %}>0–2</option>
+                    <option value="3-5" {% if request.args.get('age') == '3-5' %}selected{% endif %}>3–5</option>
+                    <option value="6+" {% if request.args.get('age') == '6+' %}selected{% endif %}>6+</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">Apply</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Pets List or No Results -->
+    {% if active_pets %}
+        <div class="row g-4">
+            {% for pet in active_pets %}
+                <div class="col-sm-6 col-md-4">
+                    <div class="card h-100 border-0 shadow rounded-4">
+                        <img src="{{ pet.photo_url or url_for('static', filename='default_pet.png') }}"
+                             class="card-img-top rounded-top-4"
+                             alt="{{ pet.name }}"
+                             style="object-fit: cover; height: 250px;">
+
+                        <div class="card-body">
+                            <h5 class="card-title fw-semibold">{{ pet.name }}</h5>
+                            <p class="mb-1"><strong>Species:</strong> {{ pet.species }}</p>
+                            <p class="mb-1"><strong>Age:</strong> {{ pet.age }} years</p>
+                            <p class="mb-1"><strong>Bio:</strong> {{ pet.bio }}</p>
+                            <a href="{{ url_for('main.view_pet', pet_id=pet.id) }}" class="btn btn-info btn-sm w-100">View Pet</a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endfor %}
-    </div>
-</div>
-{% endblock %}
+            {% endfor %}
+        </div>
 
+        <!-- Pagination Controls -->
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('main.index', page=pagination.prev_num, **request.args.to_dict()) }}">&laquo; Prev</a>
+                    </li>
+                {% endif %}
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.index', page=page_num, **request.args.to_dict()) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endfor %}
+                {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('main.index', page=pagination.next_num, **request.args.to_dict()) }}">Next &raquo;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% else %}
+        <div class="alert alert-info text-center mt-4">No pets found. Try changing your filters or search query.</div>
+    {% endif %}
+</div>
+
+<!-- Suggestion Autocomplete Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchBox = document.getElementById('search-box');
+    const suggestionsBox = document.getElementById('suggestions');
+
+    searchBox.addEventListener('input', function () {
+        const query = this.value;
+        if (query.length < 2) {
+            suggestionsBox.innerHTML = '';
+            return;
+        }
+
+        fetch(`/suggest?query=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(data => {
+                suggestionsBox.innerHTML = '';
+                data.forEach(item => {
+                    const suggestion = document.createElement('div');
+                    suggestion.className = 'list-group-item list-group-item-action';
+                    suggestion.textContent = item;
+                    suggestion.addEventListener('click', () => {
+                        searchBox.value = item;
+                        suggestionsBox.innerHTML = '';
+                    });
+                    suggestionsBox.appendChild(suggestion);
+                });
+            });
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!searchBox.contains(e.target)) {
+            suggestionsBox.innerHTML = '';
+        }
+    });
+});
+</script>
+{% endblock %}
