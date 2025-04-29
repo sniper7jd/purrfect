@@ -51,10 +51,6 @@ def unlike_pet(pet_id):
 def chat(user_id):
     user = current_user
 
-    if user.id == user_id:
-        flash("That's your pet!", "warning")
-        return redirect(url_for('main.index'))
-
     other_user = User.query.get(user_id)
     if other_user is None:
         return redirect(url_for('main.messages'))  # Redirect if user not found
@@ -115,11 +111,6 @@ def view_pet(pet_id):
     pet = Pet.query.get_or_404(pet_id)  # Fetch the pet by its ID
     return render_template('view_pet.html', pet=pet)
 
-@bp.route('/explore')
-@login_required
-def explore():
-
-    return render_template('index.html', title='Home')
 
 
 @bp.route('/user/<username>')
@@ -182,6 +173,17 @@ def edit_pet(pet_id):
 
     return render_template('edit_pet.html', form=form, pet=pet)
 
+@bp.route('/delete_pet/<int:pet_id>', methods=['POST'])
+@login_required
+def delete_pet(pet_id):
+    pet = db.get_or_404(Pet, pet_id)
+    if pet.owner != current_user:
+        abort(403)
+
+    db.session.delete(pet)
+    db.session.commit()
+    flash('Pet has been deleted.', 'success')
+    return redirect(url_for('main.user', username=current_user.username))
 
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])
@@ -201,46 +203,6 @@ def edit_profile():
                            form=form)
 
 
-@bp.route('/follow/<username>', methods=['POST'])
-@login_required
-def follow(username):
-    form = EmptyForm()
-    if form.validate_on_submit():
-        user = db.session.scalar(
-            sa.select(User).where(User.username == username))
-        if user is None:
-            flash(_('User %(username)s not found.', username=username))
-            return redirect(url_for('main.index'))
-        if user == current_user:
-            flash(_('You cannot follow yourself!'))
-            return redirect(url_for('main.user', username=username))
-        current_user.follow(user)
-        db.session.commit()
-        flash(_('You are following %(username)s!', username=username))
-        return redirect(url_for('main.user', username=username))
-    else:
-        return redirect(url_for('main.index'))
-
-
-@bp.route('/unfollow/<username>', methods=['POST'])
-@login_required
-def unfollow(username):
-    form = EmptyForm()
-    if form.validate_on_submit():
-        user = db.session.scalar(
-            sa.select(User).where(User.username == username))
-        if user is None:
-            flash(_('User %(username)s not found.', username=username))
-            return redirect(url_for('main.index'))
-        if user == current_user:
-            flash(_('You cannot unfollow yourself!'))
-            return redirect(url_for('main.user', username=username))
-        current_user.unfollow(user)
-        db.session.commit()
-        flash(_('You are not following %(username)s.', username=username))
-        return redirect(url_for('main.user', username=username))
-    else:
-        return redirect(url_for('main.index'))
 
 
 @bp.route('/translate', methods=['POST'])

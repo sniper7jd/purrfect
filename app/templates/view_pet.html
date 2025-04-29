@@ -32,8 +32,11 @@
         </div>
     </div>
 
-<button onclick="window.location.href='{{ url_for('main.chat', user_id=pet.owner.id) }}'">Message Owner</button>
-
+{% if current_user.id == pet.owner.id %}
+    <p style="color: orange; font-weight: bold;">This is your pet!</p>
+{% else %}
+    <button onclick="window.location.href='{{ url_for('main.chat', user_id=pet.owner.id) }}'">Message Owner</button>
+{% endif %}
 
     <div class="text-center mt-4">
         <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Back to Active Pets</a>
