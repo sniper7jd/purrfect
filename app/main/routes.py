@@ -88,11 +88,86 @@ def messages():
     return render_template('message_list.html', users=users)
 
 @bp.route('/', methods=['GET'])
-@bp.route('/index', methods=['GET'])
+@bp.route('/index')
 @login_required
 def index():
-    active_pets = Pet.query.filter_by(is_active=1).all()  # Fetch all active pets
-    return render_template('index.html', active_pets=active_pets)
+    search_query = request.args.get('search', '', type=str).strip().lower()
+    sort_by = request.args.get('sort', '', type=str)
+    species_filter = request.args.get('species', '', type=str)
+    age_filter = request.args.get('age', '', type=str)
+    page = request.args.get('page', 1, type=int)
+
+    pets_query = Pet.query
+
+    # Filter by search
+    if search_query:
+        pets_query = pets_query.filter(
+            (Pet.name.ilike(f"%{search_query}%")) |
+            (Pet.species.ilike(f"%{search_query}%"))
+        )
+
+    # Filter by species
+    if species_filter:
+        pets_query = pets_query.filter(Pet.species == species_filter)
+
+    # Filter by age
+    if age_filter == '0-2':
+        pets_query = pets_query.filter(Pet.age <= 2)
+    elif age_filter == '3-5':
+        pets_query = pets_query.filter(Pet.age >= 3, Pet.age <= 5)
+    elif age_filter == '6+':
+        pets_query = pets_query.filter(Pet.age >= 6)
+
+    # Sort
+    if sort_by == 'alpha_asc':
+        pets_query = pets_query.order_by(Pet.name.asc())
+    elif sort_by == 'alpha_desc':
+        pets_query = pets_query.order_by(Pet.name.desc())
+    elif sort_by == 'location':
+        pets_query = pets_query.order_by(Pet.location.asc())
+    else:
+        pets_query = pets_query.order_by(Pet.name.asc())  # default
+
+    # Pagination
+    pagination = pets_query.paginate(page=page, per_page=6, error_out=False)
+    active_pets = pagination.items
+
+    # Species filter options
+    species_choices = sorted({pet.species for pet in Pet.query.filter_by(user_id=current_user.id).all()})
+
+    return render_template(
+        'index.html',
+        active_pets=active_pets,
+        species_choices=species_choices,
+        pagination=pagination
+    )
+
+
+from flask import jsonify
+
+@bp.route('/suggest')
+@login_required
+def suggest():
+    query = request.args.get('query', '', type=str).lower()
+    suggestions = []
+
+    if query:
+        pets = Pet.query.filter_by(user_id=current_user.id).filter(
+            (Pet.name.ilike(f"%{query}%")) |
+            (Pet.species.ilike(f"%{query}%"))
+        ).limit(10).all()
+
+        seen = set()
+        for pet in pets:
+            if pet.name.lower().startswith(query) and pet.name not in seen:
+                suggestions.append(pet.name)
+                seen.add(pet.name)
+            if pet.species.lower().startswith(query) and pet.species not in seen:
+                suggestions.append(pet.species)
+                seen.add(pet.species)
+
+    return jsonify(suggestions)
+
 
 @bp.route('/blog')
 def blog():
@@ -195,12 +270,12 @@ def edit_profile():
         current_user.about_me = form.about_me.data
         db.session.commit()
         flash(_('Your changes have been saved.'))
-        return redirect(url_for('main.edit_profile'))
+        return redirect(url_for('main.user', username=current_user.username))
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
-    return render_template('edit_profile.html', title=_('Edit Profile'),
-                           form=form)
+    return render_template('edit_profile.html', title=_('Edit Profile'), form=form)
+
 
 
 
