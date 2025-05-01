@@ -29,6 +29,8 @@ class User(UserMixin, db.Model):
         foreign_keys='Message.sender_id', back_populates="sender", cascade="all, delete-orphan")
     received_messages: so.Mapped[List["Message"]] = so.relationship(
         foreign_keys='Message.receiver_id', back_populates="receiver", cascade="all, delete-orphan")
+    event_rsvps: so.Mapped[List["EventRSVP"]] = so.relationship(
+        back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -114,6 +116,9 @@ class Pet(db.Model):
     def __repr__(self):
         return f"<Pet {self.name}>"
 
+
+
+
 class Like(db.Model):
     __tablename__ = 'likes'
 
@@ -129,6 +134,8 @@ class Like(db.Model):
 
     def __repr__(self):
         return f"<Like user_id={self.user_id} pet_id={self.pet_id}>"
+
+
 
 class Message(db.Model):
     __tablename__ = 'messages'
@@ -156,3 +163,37 @@ class PetImage(db.Model):
 
     def __repr__(self):
         return f"<PetImage pet_id={self.pet_id} url={self.image_url}>"
+
+
+class Event(db.Model):
+    __tablename__ = 'events'
+
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    title: so.Mapped[str] = so.mapped_column(sa.String(100), nullable=False)
+    description: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
+    location: so.Mapped[Optional[str]] = so.mapped_column(sa.String(150))
+    event_time: so.Mapped[datetime] = so.mapped_column(nullable=False)
+    created_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
+
+    rsvps: so.Mapped[List["EventRSVP"]] = so.relationship(back_populates="event", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<Event {self.title} at {self.event_time}>"
+
+class EventRSVP(db.Model):
+    __tablename__ = 'event_rsvps'
+
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey('users.id', ondelete='CASCADE'))
+    event_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey('events.id', ondelete='CASCADE'))
+    response: so.Mapped[str] = so.mapped_column(sa.String(10), nullable=False)  # 'yes' or 'no'
+    responded_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
+
+    user: so.Mapped[User] = so.relationship(back_populates="event_rsvps")
+    event: so.Mapped[Event] = so.relationship(back_populates="rsvps")
+
+    __table_args__ = (sa.UniqueConstraint('user_id', 'event_id', name='unique_user_event_rsvp'),)
+
+    def __repr__(self):
+        return f"<RSVP user_id={self.user_id} event_id={self.event_id} response={self.response}>"
+
