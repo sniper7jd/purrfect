@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timezone
 
 import requests
@@ -7,9 +8,11 @@ from flask_login import current_user, login_required
 from flask_babel import _, get_locale
 import sqlalchemy as sa
 from langdetect import detect, LangDetectException
+from werkzeug.utils import secure_filename
+
 from app import db
 
-from app.main.forms import EditProfileForm, EmptyForm, PostForm, PetForm, BlogPostForm
+from app.main.forms import EditProfileForm, EmptyForm, PostForm, PetForm, BlogPostForm, RSVPForm, events_data
 from app.models import User, Pet, Message
 from app.translate import translate
 from app.main import bp
@@ -173,10 +176,6 @@ def suggest():
 def blog():
     return render_template('blog.html', title="Blog")
 
-@bp.route('/events')
-def events():
-    return render_template('events.html', title="Events")
-
 @bp.route('/adoption')
 def adoption():
     return render_template('adoption.html', title="Adoption")
@@ -222,10 +221,11 @@ def add_pet():
             age=form.age.data,
             bio=form.bio.data,
             interests=form.interests.data,
-            photo_url=form.photo_url.data,
             is_active=form.is_active.data,
             owner=current_user
         )
+
+
         db.session.add(pet)
         db.session.commit()
         flash('Your pet has been added!', 'success')
@@ -235,18 +235,40 @@ def add_pet():
 @bp.route('/edit_pet/<int:pet_id>', methods=['GET', 'POST'])
 @login_required
 def edit_pet(pet_id):
-    pet = db.get_or_404(Pet, pet_id)
-    if pet.owner != current_user:
-        abort(403)
+    pet = Pet.query.get_or_404(pet_id)
+    form = PetForm()
 
-    form = PetForm(obj=pet)
     if form.validate_on_submit():
-        form.populate_obj(pet)
+        # Update pet attributes
+        pet.name = form.name.data
+        pet.species = form.species.data
+        pet.age = form.age.data
+        pet.bio = form.bio.data
+        pet.interests = form.interests.data
+        pet.is_active = form.is_active.data
+
+        file = form.pet_picture.data
+        if file and hasattr(file, 'filename') and file.filename != '':
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(current_app.root_path, 'static/pet_pics', filename)
+            file.save(file_path)
+            pet.pet_picture = f'pet_pics/{filename}'
+
         db.session.commit()
-        flash('Pet information updated!', 'success')
+        flash('Pet updated successfully!', 'success')
         return redirect(url_for('main.user', username=current_user.username))
 
+    # Prepopulate the form with existing pet data for GET requests
+    elif request.method == 'GET':
+        form.name.data = pet.name
+        form.species.data = pet.species
+        form.age.data = pet.age
+        form.bio.data = pet.bio
+        form.interests.data = pet.interests
+        form.is_active.data = pet.is_active
+
     return render_template('edit_pet.html', form=form, pet=pet)
+
 
 @bp.route('/delete_pet/<int:pet_id>', methods=['POST'])
 @login_required
@@ -268,16 +290,38 @@ def edit_profile():
     if form.validate_on_submit():
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
+
+        file = form.profile_picture.data
+        if file and hasattr(file, 'filename') and file.filename != '':
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(current_app.root_path, 'static/profile_pics', filename)
+            file.save(file_path)
+            current_user.profile_picture = f'profile_pics/{filename}'
+
         db.session.commit()
         flash(_('Your changes have been saved.'))
         return redirect(url_for('main.user', username=current_user.username))
+
     elif request.method == 'GET':
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
+
     return render_template('edit_profile.html', title=_('Edit Profile'), form=form)
 
 
+@bp.route('/events')
+def events():
+    forms = {event['id']: RSVPForm() for event in events_data}
+    return render_template('events.html', events=events_data, forms=forms)
 
+@bp.route('/rsvp/<int:event_id>', methods=['POST'])
+def rsvp(event_id):
+    form = RSVPForm()
+    if form.validate_on_submit():
+        flash(f"You have successfully RSVP'd to event {event_id}!", "success")
+    else:
+        flash("RSVP failed. Please try again.", "danger")
+        return redirect(url_for('main.events'))
 
 
 @bp.route('/translate', methods=['POST'])
