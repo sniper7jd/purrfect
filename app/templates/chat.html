@@ -1,16 +1,105 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Chat with {{ user.username }}</h2>
-<div>
-    {% for message in messages %}
-        <p><strong>{{ message.sender.username }}:</strong> {{ message.content }}</p>
-    {% endfor %}
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f1f1f1;
+    }
+
+    .chat-container {
+        width: 60%;
+        max-width: 800px;
+        margin: 20px auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        height: 80vh;
+    }
+
+    .chat-header {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 10px;
+    }
+
+    .messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-right: 10px;
+        margin-bottom: 20px;
+    }
+
+    .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 8px;
+        max-width: 70%;
+        line-height: 1.4;
+        word-wrap: break-word;
+    }
+
+    .message.self {
+        background-color: #dcf8c6;
+        align-self: flex-end;
+        text-align: right;
+    }
+
+    .message.other {
+        background-color: #ebebeb;
+        align-self: flex-start;
+        text-align: left;
+    }
+
+    .chat-form {
+        display: flex;
+        gap: 10px;
+    }
+
+    .chat-form textarea {
+        flex-grow: 1;
+        height: 60px;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        resize: none;
+        font-size: 1em;
+    }
+
+    .chat-form button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background 0.3s ease;
+    }
+
+    .chat-form button:hover {
+        background-color: #45a049;
+    }
+</style>
+
+<div class="chat-container">
+    <div class="chat-header">Chat with {{ user.username }}</div>
+    <div class="messages">
+        {% for message in messages %}
+            <div class="message {% if message.sender == request.user %}self{% else %}other{% endif %}">
+                <strong>{{ message.sender.username }}:</strong> {{ message.content }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="POST" class="chat-form">
+        <textarea name="content" placeholder="Type a message..." required></textarea>
+        <button type="submit">Send</button>
+    </form>
 </div>
-
-<form method="POST">
-    <textarea name="content" placeholder="Type a message" required></textarea>
-    <button type="submit">Send</button>
-</form>
-
 {% endblock %}

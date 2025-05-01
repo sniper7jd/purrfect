@@ -59,10 +59,10 @@
             {% for pet in active_pets %}
                 <div class="col-sm-6 col-md-4">
                     <div class="card h-100 border-0 shadow rounded-4">
-                        <img src="{{ pet.photo_url or url_for('static', filename='default_pet.png') }}"
-                             class="card-img-top rounded-top-4"
-                             alt="{{ pet.name }}"
-                             style="object-fit: cover; height: 250px;">
+                        <img src="{{ url_for('static', filename=pet.pet_picture) if pet.pet_picture else url_for('static', filename='default_pet.png') }}"
+                         class="card-img-top rounded-top-4"
+                         alt="{{ pet.name }}"
+                         style="object-fit: cover; height: 250px;">
 
                         <div class="card-body">
                             <h5 class="card-title fw-semibold">{{ pet.name }}</h5>
