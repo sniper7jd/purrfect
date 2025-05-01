@@ -105,13 +105,13 @@ class Pet(db.Model):
     species: so.Mapped[Optional[str]] = so.mapped_column(sa.String(100))
     bio: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
     interests: so.Mapped[Optional[str]] = so.mapped_column(sa.String(200))
-    photo_url: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
+    location: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255))
+    pet_picture: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     is_active: so.Mapped[bool] = so.mapped_column(default=True)
     created_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
 
     owner: so.Mapped[User] = so.relationship(back_populates="pets")
     likes: so.Mapped[List["Like"]] = so.relationship(back_populates="pet", cascade="all, delete-orphan")
-    images: so.Mapped[List["PetImage"]] = so.relationship(back_populates="pet", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Pet {self.name}>"
@@ -152,17 +152,6 @@ class Message(db.Model):
     def __repr__(self):
         return f"<Message from={self.sender_id} to={self.receiver_id}>"
 
-class PetImage(db.Model):
-    __tablename__ = 'pet_images'
-
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    pet_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey('pets.id', ondelete='CASCADE'))
-    image_url: so.Mapped[str] = so.mapped_column(sa.String(256), nullable=False)
-
-    pet: so.Mapped[Pet] = so.relationship(back_populates="images")
-
-    def __repr__(self):
-        return f"<PetImage pet_id={self.pet_id} url={self.image_url}>"
 
 
 class Event(db.Model):

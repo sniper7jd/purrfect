@@ -35,6 +35,15 @@
                     {{ form.interests(class="form-control", value=pet.interests) }}
                 </div>
 
+                <!-- Location field with Google Places Autocomplete -->
+                <div class="mb-3">
+                    {{ form.location.label(class="form-label") }}
+                    {{ form.location(class="form-control", id="location-input", value=pet.location) }}
+                    {% for error in form.location.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
                 <div class="mb-3">
                     {{ form.pet_picture.label(class="form-label") }}
                     {{ form.pet_picture(class="form-control", type="file") }}
@@ -87,4 +96,7 @@
         </div>
     </div>
 </div>
+
+
+
 {% endblock %}

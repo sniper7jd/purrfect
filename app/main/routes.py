@@ -246,7 +246,9 @@ def edit_pet(pet_id):
         pet.bio = form.bio.data
         pet.interests = form.interests.data
         pet.is_active = form.is_active.data
+        pet.location = form.location.data
 
+        # Handle pet picture upload
         file = form.pet_picture.data
         if file and hasattr(file, 'filename') and file.filename != '':
             filename = secure_filename(file.filename)
@@ -266,6 +268,7 @@ def edit_pet(pet_id):
         form.bio.data = pet.bio
         form.interests.data = pet.interests
         form.is_active.data = pet.is_active
+        form.location.data = pet.location  # Prepopulate location field
 
     return render_template('edit_pet.html', form=form, pet=pet)
 

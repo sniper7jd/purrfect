@@ -43,6 +43,7 @@ class PetForm(FlaskForm):
     age = IntegerField('Age', validators=[Optional()])
     bio = TextAreaField('Bio', validators=[Optional()])
     interests = StringField('Interests', validators=[Optional()])
+    location = StringField('Location', validators=[Optional()])
     pet_picture = FileField("Pet Picture", validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
     is_active = BooleanField('Active?', default=True)
     submit = SubmitField('Add Pet')
