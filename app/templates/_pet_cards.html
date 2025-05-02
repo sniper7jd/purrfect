@@ -1,0 +1,49 @@
+{% if active_pets %}
+    <div class="row g-4">
+        {% for pet in active_pets %}
+            <div class="col-sm-6 col-md-4">
+                <div class="card h-100 border-0 shadow rounded-4">
+                    <img src="{{ url_for('static', filename=pet.pet_picture) if pet.pet_picture else url_for('static', filename='default_pet.png') }}"
+                         class="card-img-top rounded-top-4"
+                         alt="{{ pet.name }}"
+                         style="object-fit: cover; height: 250px;">
+                    <div class="card-body">
+                        <h5 class="card-title fw-semibold">{{ pet.name }}</h5>
+                        <p class="mb-1"><strong>Species:</strong> {{ pet.species }}</p>
+                        <p class="mb-1"><strong>Age:</strong> {{ pet.age }} years</p>
+                        <p class="mb-1"><strong>Location:</strong> {{ pet.location }}</p>
+                        <a href="{{ url_for('main.view_pet', pet_id=pet.id) }}" class="btn btn-info btn-sm w-100">View Pet</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <nav aria-label="Page navigation" class="mt-4">
+        {% set args = request.args.to_dict() %}
+        {% set _ = args.pop('page', None) %}
+        <ul class="pagination justify-content-center">
+            {% if pagination.has_prev %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('main.index', page=pagination.prev_num, **args) }}">&laquo; Prev</a>
+                </li>
+            {% endif %}
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('main.index', page=page_num, **args) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                {% endif %}
+            {% endfor %}
+            {% if pagination.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('main.index', page=pagination.next_num, **args) }}">Next &raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% else %}
+    <div class="alert alert-info text-center mt-4">No pets found. Try changing your filters or search query.</div>
+{% endif %}

@@ -17,6 +17,17 @@
     background-color: #ff1493;
     border-color: #ff1493;
   }
+
+  .btn-cancel {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+  }
+
+  .btn-cancel:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+  }
 </style>
 
 <div class="container mt-5">
@@ -67,7 +78,21 @@
           {% endfor %}
         </div>
 
+        <div class="mb-3">
+          {{ form.location.label(class="form-label") }}
+          {{ form.location(class="form-control custom-border", placeholder="Where is your pet located?") }}
+          {% for error in form.location.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
 
+        <div class="mb-3">
+          {{ form.pet_picture.label(class="form-label") }}
+          {{ form.pet_picture(class="form-control custom-border") }}
+          {% for error in form.pet_picture.errors %}
+            <div class="text-danger">{{ error }}</div>
+          {% endfor %}
+        </div>
 
         <div class="form-check mb-3">
           {{ form.is_active(class="form-check-input custom-border") }}
@@ -77,8 +102,9 @@
           {% endfor %}
         </div>
 
-        <div class="text-center">
+        <div class="text-center d-flex justify-content-between">
           {{ form.submit(class="btn btn-pink") }}
+          <a href="{{ url_for('main.user', username=current_user.username) }}" class="btn btn-cancel">Cancel</a>
         </div>
       </form>
     </div>

@@ -2,15 +2,15 @@
 
 {% block content %}
   <div class="container mt-4">
+    <h1>{{ _('Blog Posts') }}</h1>
     <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1>{{ _('Blog Posts') }}</h1>
       <a href="{{ url_for('main.create_post') }}" class="btn btn-primary">{{ _('Add Post') }}</a>
     </div>
 
     {% for post in posts %}
       <div class="blog-post mb-5">
         <h2>{{ post.title }}</h2>
-        <p class="text-muted">{{ _('by') }} {{ post.author }} | {{ post.date_posted.strftime('%B %d, %Y') }}</p>
+        <p class="text-muted">{{ _('by') }} {{ post.author.username }} | {{ post.date_posted.strftime('%B %d, %Y') }}</p>
         <p>{{ post.content }}</p>
         <hr>
       </div>

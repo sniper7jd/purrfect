@@ -1,61 +1,74 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-5">
-<div class="d-flex justify-content-between align-items-center mb-4">
-<h2 class="mb-0">Pet Details - {{ pet.name }}</h2>
-<a href="{{ url_for('main.index') }}" class="btn
-btn-outline-secondary">Back to Active Pets</a>
-</div>
-<div class="row justify-content-center">
-<div class="col-md-8">
-<div class="card shadow-sm p-4">
-<div class="row g-4">
-<div class="col-md-5">
-<img src="{{ pet.photo_url or url_for('static',
-filename='default_pet.png') }}" class="img-fluid rounded" alt="{{ pet.name
-}}">
-</div>
-<div class="col-md-7">
-<h3 class="card-title">{{ pet.name }}</h3>
-<p class="mb-2"><strong>Species:</strong> {{
-pet.species }}</p>
-<p class="mb-2"><strong>Age:</strong> {{ pet.age }}
-years</p>
-{% if pet.bio %}
-<p class="mb-2"><strong>Bio:</strong> {{ pet.bio
-}}</p>
-{% endif %}
-{% if pet.interests %}
-<p class="mb-3"><strong>Interests:</strong> {{
-pet.interests }}</p>
-{% endif %}
-<div class="mb-3">
-{% if current_user.has_liked_pet(pet) %}
-<form action="{{ url_for('main.unlike_pet',
-pet_id=pet.id) }}" method="post">
-<button type="submit" class="btn
-btn-danger">Unlike ❤️</button>
-</form>
-{% else %}
-<form action="{{ url_for('main.like_pet',
-pet_id=pet.id) }}" method="post">
-<button type="submit" class="btn
-btn-outline-danger">Like 🤍</button>
-</form>
-{% endif %}
-</div>
-{% if current_user.id == pet.owner.id %}
-<p class="text-warning fw-bold">This is your
-pet!</p>
-{% else %}
-<button class="btn btn-primary"
-onclick="window.location.href='{{ url_for('main.chat', user_id=pet.owner.id)
-}}'">Message Owner</button>
-{% endif %}
-</div>
-</div>
-</div>
-</div>
-</div>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">🐾 Pet Details - {{ pet.name }}</h2>
+    <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">Back to Active Pets</a>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card shadow-lg p-4 rounded-4">
+        <div class="row g-4 align-items-stretch flex-md-row flex-column">
+
+          <!-- Pet Info Section -->
+          <div class="col-md-6 d-flex flex-column">
+            <img src="{{ url_for('static', filename=pet.pet_picture) if pet.pet_picture else url_for('static', filename='default_pet.png') }}"
+                 class="img-fluid rounded-4 mb-3"
+                 alt="{{ pet.name }}"
+                 style="height: 300px; object-fit: cover; width: 100%;">
+
+            <div>
+              <h3 class="fw-bold">{{ pet.name }}</h3>
+              <p><strong>Species:</strong> {{ pet.species }}</p>
+              <p><strong>Age:</strong> {{ pet.age }} years</p>
+
+              {% if pet.bio %}
+                <p><strong>Bio:</strong> {{ pet.bio }}</p>
+              {% endif %}
+              {% if pet.interests %}
+                <p><strong>Interests:</strong> {{ pet.interests }}</p>
+              {% endif %}
+
+              <!-- Like/Unlike Button -->
+              <div class="my-3">
+                {% if current_user.has_liked_pet(pet) %}
+                  <form action="{{ url_for('main.unlike_pet', pet_id=pet.id) }}" method="post">
+                    <button type="submit" class="btn btn-danger w-100">Unlike ❤️</button>
+                  </form>
+                {% else %}
+                  <form action="{{ url_for('main.like_pet', pet_id=pet.id) }}" method="post">
+                    <button type="submit" class="btn btn-outline-danger w-100">Like 🤍</button>
+                  </form>
+                {% endif %}
+              </div>
+
+              {% if current_user.id == pet.owner.id %}
+                <p class="text-warning fw-bold text-center mt-2">This is your pet!</p>
+              {% endif %}
+            </div>
+          </div>
+
+          <!-- Owner Info Section -->
+          <div class="col-md-6 d-flex flex-column align-items-center justify-content-center text-center border-start pt-md-0 pt-4">
+            <img src="{{ url_for('static', filename=pet.owner.profile_picture) if pet.owner.profile_picture else url_for('static', filename='default_user.png') }}"
+                 class="rounded-circle mb-3"
+                 alt="{{ pet.owner.username }}"
+                 style="width: 150px; height: 150px; object-fit: cover;">
+
+            <h5 class="fw-bold">{{ pet.owner.username }}</h5>
+
+            {% if current_user.id != pet.owner.id %}
+              <button class="btn btn-primary mt-3"
+                      onclick="window.location.href='{{ url_for('main.chat', user_id=pet.owner.id) }}'">
+                💬 Message Owner
+              </button>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
