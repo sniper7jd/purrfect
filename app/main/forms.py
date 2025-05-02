@@ -39,11 +39,11 @@ class PostForm(FlaskForm):
 
 class PetForm(FlaskForm):
     name = StringField('Pet Name', validators=[DataRequired()])
-    species = StringField('Species', validators=[Optional()])
-    age = IntegerField('Age', validators=[Optional()])
+    species = StringField('Species', validators=[DataRequired()])
+    age = IntegerField('Age', validators=[DataRequired()])
     bio = TextAreaField('Bio', validators=[Optional()])
     interests = StringField('Interests', validators=[Optional()])
-    location = StringField('Location', validators=[Optional()])
+    location = StringField('Location', [DataRequired()])
     pet_picture = FileField("Pet Picture", validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
     is_active = BooleanField('Active?', default=True)
     submit = SubmitField('Add Pet')
@@ -51,7 +51,8 @@ class PetForm(FlaskForm):
 class BlogPostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
-    submit = SubmitField('Post')
+    submit = SubmitField('Create Post')
+
 
 class RSVPForm(FlaskForm):
     submit = SubmitField('RSVP')

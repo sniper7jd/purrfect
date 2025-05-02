@@ -13,7 +13,7 @@ from werkzeug.utils import secure_filename
 from app import db
 
 from app.main.forms import EditProfileForm, EmptyForm, PostForm, PetForm, BlogPostForm, RSVPForm, events_data
-from app.models import User, Pet, Message
+from app.models import User, Pet, Message, BlogPost
 from app.translate import translate
 from app.main import bp
 
@@ -172,9 +172,7 @@ def suggest():
     return jsonify(suggestions)
 
 
-@bp.route('/blog')
-def blog():
-    return render_template('blog.html', title="Blog")
+
 
 @bp.route('/adoption')
 def adoption():
@@ -195,18 +193,28 @@ def user(username):
     form = EmptyForm()
     return render_template('user.html', user=user, form=form)
 
-@bp.route('/blog-post', methods=['GET', 'POST'])
+# Route to display all blog posts
+@bp.route('/blog')
+def blog():
+    posts = BlogPost.query.order_by(BlogPost.date_posted.desc()).all()
+    return render_template('blog.html', posts=posts)
+
+# Route to create a new blog post
+@bp.route('/create_post', methods=['GET', 'POST'])
+@login_required  # Ensure user is logged in to create a post
 def create_post():
     form = BlogPostForm()
     if form.validate_on_submit():
-        new_post = {
-            'title': form.title.data,
-            'content': form.content.data,
-            'author': 'Anonymous',  # Replace with current_user if using login
-            'date_posted': datetime.now()
-        }
-        posts.insert(0, new_post)
-        return redirect(url_for('blog'))
+        # Create a new blog post instance
+        new_post = BlogPost(
+            title=form.title.data,
+            content=form.content.data,
+            author=current_user,  # Set the current user as the author
+            date_posted=datetime.now()
+        )
+        db.session.add(new_post)
+        db.session.commit()
+        return redirect(url_for('main.blog'))  # Redirect to blog post listing
     return render_template('create_post.html', form=form)
 
 
@@ -215,6 +223,15 @@ def create_post():
 def add_pet():
     form = PetForm()
     if form.validate_on_submit():
+        file = form.pet_picture.data
+        picture_path = None
+
+        if file and hasattr(file, 'filename') and file.filename != '':
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(current_app.root_path, 'static/pet_pics', filename)
+            file.save(file_path)
+            picture_path = f'pet_pics/{filename}'
+
         pet = Pet(
             name=form.name.data,
             species=form.species.data,
@@ -222,15 +239,18 @@ def add_pet():
             bio=form.bio.data,
             interests=form.interests.data,
             is_active=form.is_active.data,
+            location=form.location.data,  # Include location
+            pet_picture=picture_path,     # Set pet picture if uploaded
             owner=current_user
         )
-
 
         db.session.add(pet)
         db.session.commit()
         flash('Your pet has been added!', 'success')
-        return redirect(url_for('main.user', username=current_user.username))  # Adjust the redirect target as needed
+        return redirect(url_for('main.user', username=current_user.username))
+
     return render_template('add_pet.html', form=form)
+
 
 @bp.route('/edit_pet/<int:pet_id>', methods=['GET', 'POST'])
 @login_required

@@ -23,6 +23,7 @@ class User(UserMixin, db.Model):
     created_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))
 
     # Relationships
+    posts: so.Mapped[list['BlogPost']] = so.relationship('BlogPost', back_populates="author", lazy='dynamic')
     pets: so.Mapped[List["Pet"]] = so.relationship(back_populates="owner", cascade="all, delete-orphan")
     likes: so.Mapped[List["Like"]] = so.relationship(back_populates="user", cascade="all, delete-orphan")
     sent_messages: so.Mapped[List["Message"]] = so.relationship(
@@ -152,6 +153,20 @@ class Message(db.Model):
     def __repr__(self):
         return f"<Message from={self.sender_id} to={self.receiver_id}>"
 
+class BlogPost(db.Model):
+    __tablename__ = 'blog_posts'
+
+    id: so.Mapped[int] = so.mapped_column(primary_key=True)
+    title: so.Mapped[str] = so.mapped_column(sa.String(120), nullable=False)
+    content: so.Mapped[str] = so.mapped_column(sa.Text, nullable=False)
+    author_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)  # Foreign key to User model
+    date_posted: so.Mapped[datetime] = so.mapped_column(default=datetime.utcnow, nullable=False)
+
+    # Relationships to User (author)
+    author: so.Mapped[User] = so.relationship('User', back_populates="posts")
+
+    def __repr__(self):
+        return f"<BlogPost {self.title}>"
 
 
 class Event(db.Model):
