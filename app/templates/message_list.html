@@ -1,15 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>Messages</h2>
-<ul>
-    {% for user in users %}
-        <li>
-            <a href="{{ url_for('main.chat', user_id=user.id) }}">
-                <strong>{{ user.username }}</strong>
-            </a>
-        </li>
-    {% endfor %}
-</ul>
+<div class="container my-4">
+    <h2 class="mb-4">Messages</h2>
 
+    <div class="row row-cols-1 g-3">
+        {% for user in users %}
+        <div class="col">
+            <a href="{{ url_for('main.chat', user_id=user.id) }}" class="text-decoration-none text-dark">
+                <div class="card shadow-sm d-flex flex-row align-items-center p-3">
+                    <img src="{{ url_for('static', filename=user.profile_picture or 'default_profile.png') }}"
+                         class="rounded-circle me-3" alt="{{ user.username }} profile" width="60" height="60">
+                    <div>
+                        <h5 class="mb-0">{{ user.username }}</h5>
+                        <small class="text-muted">Click to view chat</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% else %}
+        <p class="text-muted">You have no conversations yet.</p>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

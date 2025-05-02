@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 
 from app import db
 
-from app.main.forms import EditProfileForm, EmptyForm, PostForm, PetForm, BlogPostForm, RSVPForm, events_data
+from app.main.forms import EditProfileForm, EmptyForm, PetForm, BlogPostForm, RSVPForm, events_data
 from app.models import User, Pet, Message, BlogPost
 from app.translate import translate
 from app.main import bp
@@ -28,55 +28,46 @@ def before_request():
 @bp.route('/like/<int:pet_id>', methods=['POST'])
 @login_required
 def like_pet(pet_id):
-    pet = db.session.get(Pet, pet_id)
-    if pet is None:
-        flash('Pet not found.', 'danger')
-        return redirect(url_for('index'))
-
+    pet = Pet.query.get_or_404(pet_id)
     current_user.like_pet(pet)
-    flash('You liked the pet!', 'success')
-    return redirect(request.referrer or url_for('index'))
+    db.session.commit()
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'status': 'liked'})
+    return redirect(url_for('main.pet_detail', pet_id=pet_id))
 
 @bp.route('/unlike/<int:pet_id>', methods=['POST'])
 @login_required
 def unlike_pet(pet_id):
-    pet = db.session.get(Pet, pet_id)
-    if pet is None:
-        flash('Pet not found.', 'danger')
-        return redirect(url_for('index'))
-
+    pet = Pet.query.get_or_404(pet_id)
     current_user.unlike_pet(pet)
-    flash('You unliked the pet.', 'info')
-    return redirect(request.referrer or url_for('index'))
+    db.session.commit()
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return jsonify({'status': 'unliked'})
+    return redirect(url_for('main.pet_detail', pet_id=pet_id))
 
 @bp.route('/chat/<int:user_id>', methods=["GET", "POST"])
 @login_required
 def chat(user_id):
-    user = current_user
-
+    user_self = current_user
     other_user = User.query.get(user_id)
     if other_user is None:
-        return redirect(url_for('main.messages'))  # Redirect if user not found
+        return redirect(url_for('main.messages'))
 
     # Get all messages between the current user and the other user
-    sent_messages = Message.query.filter_by(sender_id=user.id, receiver_id=other_user.id).all()
-    received_messages = Message.query.filter_by(sender_id=other_user.id, receiver_id=user.id).all()
+    sent_messages = Message.query.filter_by(sender_id=user_self.id, receiver_id=other_user.id).all()
+    received_messages = Message.query.filter_by(sender_id=other_user.id, receiver_id=user_self.id).all()
 
-    # Combine both lists and sort them by sent_at (ascending order)
     messages = sorted(sent_messages + received_messages, key=lambda x: x.sent_at)
 
     if request.method == "POST":
-        content = request.form['content'].strip()  # Get the message content
-        if content:  # Ensure message is not empty
-            message = Message(sender_id=user.id, receiver_id=other_user.id, content=content)
+        content = request.form['content'].strip()
+        if content:
+            message = Message(sender_id=user_self.id, receiver_id=other_user.id, content=content)
             db.session.add(message)
             db.session.commit()
-
-        # After sending the message, redirect to the same chat page to show the new message
         return redirect(url_for('main.chat', user_id=other_user.id))
 
-    # Render the chat page with messages
-    return render_template('chat.html', user=other_user, messages=messages)
+    return render_template('chat.html', user=other_user, messages=messages, user_self=user_self)
 
 @bp.route('/messages')
 @login_required
@@ -239,8 +230,8 @@ def add_pet():
             bio=form.bio.data,
             interests=form.interests.data,
             is_active=form.is_active.data,
-            location=form.location.data,  # Include location
-            pet_picture=picture_path,     # Set pet picture if uploaded
+            location=form.location.data.title(),
+            pet_picture=picture_path,
             owner=current_user
         )
 
@@ -266,7 +257,7 @@ def edit_pet(pet_id):
         pet.bio = form.bio.data
         pet.interests = form.interests.data
         pet.is_active = form.is_active.data
-        pet.location = form.location.data
+        pet.location = form.location.data.title()
 
         # Handle pet picture upload
         file = form.pet_picture.data
@@ -311,6 +302,7 @@ def delete_pet(pet_id):
 def edit_profile():
     form = EditProfileForm(current_user.username)
     if form.validate_on_submit():
+        current_user.name = form.name.data
         current_user.username = form.username.data
         current_user.about_me = form.about_me.data
 
@@ -326,6 +318,7 @@ def edit_profile():
         return redirect(url_for('main.user', username=current_user.username))
 
     elif request.method == 'GET':
+        form.name.data = current_user.name
         form.username.data = current_user.username
         form.about_me.data = current_user.about_me
 

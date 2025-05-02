@@ -33,15 +33,18 @@
         overflow-y: auto;
         padding-right: 10px;
         margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
     }
 
     .message {
         margin: 10px 0;
-        padding: 10px;
-        border-radius: 8px;
+        padding: 10px 15px;
+        border-radius: 12px;
         max-width: 70%;
         line-height: 1.4;
         word-wrap: break-word;
+        clear: both;
     }
 
     .message.self {
@@ -91,7 +94,7 @@
     <div class="chat-header">Chat with {{ user.username }}</div>
     <div class="messages">
         {% for message in messages %}
-            <div class="message {% if message.sender == request.user %}self{% else %}other{% endif %}">
+            <div class="message {% if message.sender_id == user_self.id %}self{% else %}other{% endif %}">
                 <strong>{{ message.sender.username }}:</strong> {{ message.content }}
             </div>
         {% endfor %}
@@ -102,4 +105,14 @@
         <button type="submit">Send</button>
     </form>
 </div>
+
+
+
+<script>
+    // Ensure scroll to bottom when new messages are added
+    const messagesContainer = document.querySelector('.messages');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+</script>
+
+
 {% endblock %}
