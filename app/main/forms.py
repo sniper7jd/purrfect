@@ -10,6 +10,7 @@ from app.models import User
 
 
 class EditProfileForm(FlaskForm):
+    name = StringField(_l('Name'), validators=[DataRequired()])
     username = StringField(_l('Username'), validators=[DataRequired()])
     about_me = TextAreaField(_l('About me'),
                              validators=[Length(min=0, max=140)])
@@ -32,10 +33,6 @@ class EmptyForm(FlaskForm):
     submit = SubmitField('Submit')
 
 
-class PostForm(FlaskForm):
-    post = TextAreaField(_l('Say something'), validators=[
-        DataRequired(), Length(min=1, max=140)])
-    submit = SubmitField(_l('Submit'))
 
 class PetForm(FlaskForm):
     name = StringField('Pet Name', validators=[DataRequired()])

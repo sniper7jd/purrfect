@@ -30,16 +30,20 @@
                 <p><strong>Interests:</strong> {{ pet.interests }}</p>
               {% endif %}
 
-              <!-- Like/Unlike Button -->
-              <div class="my-3">
+              <!-- Like/Unlike Button with AJAX -->
+              <div class="my-3" id="like-container">
                 {% if current_user.has_liked_pet(pet) %}
-                  <form action="{{ url_for('main.unlike_pet', pet_id=pet.id) }}" method="post">
-                    <button type="submit" class="btn btn-danger w-100">Unlike ❤️</button>
-                  </form>
+                  <button class="btn btn-danger w-100 like-btn"
+                          data-liked="true"
+                          data-pet-id="{{ pet.id }}">
+                    Unlike ❤️
+                  </button>
                 {% else %}
-                  <form action="{{ url_for('main.like_pet', pet_id=pet.id) }}" method="post">
-                    <button type="submit" class="btn btn-outline-danger w-100">Like 🤍</button>
-                  </form>
+                  <button class="btn btn-outline-danger w-100 like-btn"
+                          data-liked="false"
+                          data-pet-id="{{ pet.id }}">
+                    Like 🤍
+                  </button>
                 {% endif %}
               </div>
 
@@ -56,7 +60,10 @@
                  alt="{{ pet.owner.username }}"
                  style="width: 150px; height: 150px; object-fit: cover;">
 
-            <h5 class="fw-bold">{{ pet.owner.username }}</h5>
+            <h5 class="fw-bold">Name: {{ pet.owner.name }}</h5>
+            <h5 class="fw-bold">Username: {{ pet.owner.username }}</h5>
+            <h5 class="fw-bold">Bio: {{ pet.owner.bio }}</h5>
+
 
             {% if current_user.id != pet.owner.id %}
               <button class="btn btn-primary mt-3"
@@ -71,4 +78,46 @@
     </div>
   </div>
 </div>
+
+<!-- AJAX Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const likeContainer = document.getElementById('like-container');
+
+  function handleLikeButtonClick(event) {
+    const button = event.currentTarget;
+    const petId = button.dataset.petId;
+    const liked = button.dataset.liked === 'true';
+    const url = liked ? `/unlike/${petId}` : `/like/${petId}`;
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    }).then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    }).then(data => {
+      likeContainer.innerHTML = liked
+        ? `<button class="btn btn-outline-danger w-100 like-btn" data-liked="false" data-pet-id="${petId}">Like 🤍</button>`
+        : `<button class="btn btn-danger w-100 like-btn" data-liked="true" data-pet-id="${petId}">Unlike ❤️</button>`;
+      attachLikeEvent(); // rebind
+    }).catch(error => {
+      console.error('Error:', error);
+    });
+  }
+
+  function attachLikeEvent() {
+    const newBtn = document.querySelector('.like-btn');
+    if (newBtn) {
+      newBtn.addEventListener('click', handleLikeButtonClick);
+    }
+  }
+
+  attachLikeEvent();
+});
+</script>
 {% endblock %}
