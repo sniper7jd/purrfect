@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed
 from wtforms import StringField, SubmitField, TextAreaField, IntegerField
+from wtforms.fields.choices import RadioField
 from wtforms.fields.simple import BooleanField, FileField
-from wtforms.validators import ValidationError, DataRequired, Length, Optional, URL
+from wtforms.validators import ValidationError, DataRequired, Length, Optional, URL, InputRequired
 import sqlalchemy as sa
 from flask_babel import _, lazy_gettext as _l
 from app import db
@@ -52,29 +53,10 @@ class BlogPostForm(FlaskForm):
 
 
 class RSVPForm(FlaskForm):
-    submit = SubmitField('RSVP')
+    response = RadioField(
+        'RSVP',
+        choices=[('yes', 'Yes'), ('no', 'No')],
+        validators=[InputRequired()]
+    )
+    submit = SubmitField('Submit RSVP')
 
-
-events_data = [
-{
-'id': 1,
-'image': 'dogs_playing.jpg',
-'venue': 'Stewart Park',
-'date': '29 March 2025',
-'time': '12:30 pm'
-},
-{
-'id': 2,
-'image': 'dogs_playing.jpg',
-'venue': 'Stewart Park',
-'date': '29 March 2025',
-'time': '12:30 pm'
-},
-{
-'id': 3,
-'image': 'dogs_playing.jpg',
-'venue': 'Stewart Park',
-'date': '29 March 2025',
-'time': '12:30 pm'
-}
-]

@@ -63,27 +63,6 @@
                 </div>
             </form>
 
-            <!-- Current Pet Images -->
-            <h3 class="mt-4">Current Pet Images</h3>
-            <div class="row">
-                {% for image in pet.images %}
-                    <div class="col-md-4">
-                        <div class="card">
-                            <!-- Ensure the image path is correct -->
-                            <img src="{{ url_for('static', filename=image.image_url) }}" class="card-img-top" alt="Pet Image">
-                            <div class="card-body">
-                                <p class="card-text">{{ image.caption or 'No caption' }}</p>
-                                <form method="POST" action="{{ url_for('main.delete_image', image_id=image.id) }}" onsubmit="return confirm('Are you sure you want to delete this image?');">
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                </form>
-                                {% if image.is_cover %}
-                                    <p class="text-success">Cover Image</p>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
 
             <!-- Delete form (outside the update form) -->
             <form method="POST" action="{{ url_for('main.delete_pet', pet_id=pet.id) }}"
