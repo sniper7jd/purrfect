@@ -1,2 +1,3 @@
-FLASK_APP=microblog.py
+FLASK_APP=purrfect.py
 FLASK_DEBUG=1
+

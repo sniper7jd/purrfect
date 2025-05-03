@@ -2,12 +2,11 @@
 {% import "bootstrap_wtf.html" as wtf %}
 
 {% block content %}
-<h1 class="mt-4">{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
 
 <div class="container py-5">
     <div class="text-center mb-5">
-        <h2 class="fw-bold">🐾 Active Pets</h2>
-        <p class="text-muted">Here are your currently active companions.</p>
+        <h1 class="mt-4">{{ _('Hi, %(username)s!', username=current_user.username) }}</h1>
+        <h2 class="fw-bold">🐾 Find your pet's purrfect match</h2>
     </div>
 
     <!-- Search and Filter Form -->

@@ -12,8 +12,8 @@ from werkzeug.utils import secure_filename
 
 from app import db
 
-from app.main.forms import EditProfileForm, EmptyForm, PetForm, BlogPostForm, RSVPForm, events_data
-from app.models import User, Pet, Message, BlogPost
+from app.main.forms import EditProfileForm, EmptyForm, PetForm, BlogPostForm, RSVPForm
+from app.models import User, Pet, Message, BlogPost, Event, EventRSVP
 from app.translate import translate
 from app.main import bp
 
@@ -56,7 +56,6 @@ def chat(user_id):
     # Get all messages between the current user and the other user
     sent_messages = Message.query.filter_by(sender_id=user_self.id, receiver_id=other_user.id).all()
     received_messages = Message.query.filter_by(sender_id=other_user.id, receiver_id=user_self.id).all()
-
     messages = sorted(sent_messages + received_messages, key=lambda x: x.sent_at)
 
     if request.method == "POST":
@@ -65,9 +64,37 @@ def chat(user_id):
             message = Message(sender_id=user_self.id, receiver_id=other_user.id, content=content)
             db.session.add(message)
             db.session.commit()
+
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'success': True})
+
         return redirect(url_for('main.chat', user_id=other_user.id))
 
     return render_template('chat.html', user=other_user, messages=messages, user_self=user_self)
+
+@bp.route('/chat/<int:user_id>/poll')
+@login_required
+def poll_messages(user_id):
+    other_user = User.query.get(user_id)
+    if not other_user:
+        return jsonify({'error': 'User not found'}), 404
+
+    sent_messages = Message.query.filter_by(sender_id=current_user.id, receiver_id=user_id)
+    received_messages = Message.query.filter_by(sender_id=user_id, receiver_id=current_user.id)
+    all_messages = sent_messages.union(received_messages).order_by(Message.sent_at.asc()).all()
+
+    return jsonify([
+        {
+            'id': msg.id,
+            'sender_id': msg.sender_id,
+            'sender_username': msg.sender.username,  # 👈 Add this
+            'receiver_id': msg.receiver_id,
+            'content': msg.content,
+            'sent_at': msg.sent_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'me': msg.sender_id == current_user.id
+        }
+        for msg in all_messages
+    ])
 
 @bp.route('/messages')
 @login_required
@@ -91,7 +118,7 @@ def index():
     age_filter = request.args.get('age', '', type=str)
     page = request.args.get('page', 1, type=int)
 
-    pets_query = Pet.query
+    pets_query = Pet.query.filter_by(is_active=1)
 
     # Filter by search
     if search_query:
@@ -127,7 +154,7 @@ def index():
     active_pets = pagination.items
 
     # Species filter options
-    species_choices = sorted({pet.species for pet in Pet.query.filter_by(user_id=current_user.id).all()})
+    species_choices = sorted({pet.species for pet in Pet.query.distinct(Pet.species).all()})
 
     return render_template(
         'index.html',
@@ -146,7 +173,7 @@ def suggest():
     suggestions = []
 
     if query:
-        pets = Pet.query.filter_by(user_id=current_user.id).filter(
+        pets = Pet.query.filter(
             (Pet.name.ilike(f"%{query}%")) |
             (Pet.species.ilike(f"%{query}%"))
         ).limit(10).all()
@@ -327,17 +354,66 @@ def edit_profile():
 
 @bp.route('/events')
 def events():
-    forms = {event['id']: RSVPForm() for event in events_data}
-    return render_template('events.html', events=events_data, forms=forms)
+    # Fetch all events from the database
+    events_data = Event.query.all()
+
+    # Get the RSVPs for the current user
+    user_rsvps = {rsvp.event_id: rsvp for rsvp in EventRSVP.query.filter_by(user_id=current_user.id).all()}
+
+    # Create an RSVP form for each event
+    forms = {event.id: RSVPForm() for event in events_data}
+
+    # Render the events page with the event data, forms, and user RSVPs
+    return render_template('events.html', events=events_data, forms=forms, user_rsvps=user_rsvps)
+
 
 @bp.route('/rsvp/<int:event_id>', methods=['POST'])
 def rsvp(event_id):
     form = RSVPForm()
+
     if form.validate_on_submit():
-        flash(f"You have successfully RSVP'd to event {event_id}!", "success")
+        # Fetch the event from the database
+        event = Event.query.get(event_id)
+
+        if event:  # Ensure the event exists in the database
+            # Check if the user already has an RSVP for this event
+            user_rsvp = EventRSVP.query.filter_by(user_id=current_user.id, event_id=event_id).first()
+
+            if user_rsvp:
+                # Update the existing RSVP if one exists
+                user_rsvp.response = form.response.data
+            else:
+                # Create a new RSVP if the user hasn't responded yet
+                new_rsvp = EventRSVP(
+                    user_id=current_user.id,
+                    event_id=event_id,
+                    response=form.response.data
+                )
+                db.session.add(new_rsvp)
+
+            db.session.commit()
+            flash(f"You have successfully RSVP'd to the event {event.title}!", "success")
+        else:
+            flash("Event not found.", "danger")
     else:
         flash("RSVP failed. Please try again.", "danger")
-        return redirect(url_for('main.events'))
+
+    return redirect(url_for('main.events'))
+
+
+@bp.route('/cancel_rsvp/<int:event_id>', methods=['POST'])
+def cancel_rsvp(event_id):
+    # Logic to cancel the RSVP for the current user
+    rsvp = EventRSVP.query.filter_by(event_id=event_id, user_id=current_user.id).first()
+
+    if rsvp:
+        db.session.delete(rsvp)
+        db.session.commit()
+        flash("Your RSVP has been successfully cancelled.", "success")
+    else:
+        flash("RSVP not found.", "danger")
+
+    return redirect(url_for('main.events'))
 
 
 @bp.route('/translate', methods=['POST'])
@@ -347,3 +423,5 @@ def translate_text():
     return {'text': translate(data['text'],
                               data['source_language'],
                               data['dest_language'])}
+
+
