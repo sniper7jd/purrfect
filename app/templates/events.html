@@ -6,12 +6,13 @@
     {% for event in events %}
       <div class="col-md-4 mb-4">
         <div class="card shadow-sm">
-          <img src="{{ url_for('static', filename=event.image) }}" class="card-img-top" alt="dogs playing">
+          <img src="{{ url_for('static', filename='event_pics/dogsplaying.jpg') }}" class="card-img-top" alt="dogs playing" class="card-img-top">
           <div class="card-body text-center">
             <h5 class="card-title text-uppercase" style="color: #B83280;">Upcoming</h5>
-            <p><strong>Venue:</strong> {{ event.venue }}</p>
-            <p><strong>Date:</strong> {{ event.date }}</p>
-            <p><strong>Time:</strong> {{ event.time }}</p>
+            <p><strong>Location:</strong> {{ event.location }}</p>
+            <p><strong>Date:</strong> {{ event.event_time.strftime('%B %d, %Y') }}</p>
+            <p><strong>Time:</strong> {{ event.event_time.strftime('%I:%M %p') }}</p>
+
 
             {# Show current RSVP if it exists and hide form if already responded #}
             {% if user_rsvps[event.id] %}

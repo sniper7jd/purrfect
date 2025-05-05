@@ -1,0 +1,11 @@
+Hi {{ user.username }},
+
+You have successfully RSVP'd "YES" to the event "{{ event.title }}".
+
+📅 Date & Time: {{ event.event_time.strftime('%A, %B %d, %Y at %I:%M %p') }}
+📍 Location: {{ event.location or 'Location TBD' }}
+
+We're excited to see you there!
+
+Thanks,
+Purrfect Team

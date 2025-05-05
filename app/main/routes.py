@@ -11,6 +11,7 @@ from langdetect import detect, LangDetectException
 from werkzeug.utils import secure_filename
 
 from app import db
+from app.email import send_email
 
 from app.main.forms import EditProfileForm, EmptyForm, PetForm, BlogPostForm, RSVPForm
 from app.models import User, Pet, Message, BlogPost, Event, EventRSVP
@@ -87,7 +88,7 @@ def poll_messages(user_id):
         {
             'id': msg.id,
             'sender_id': msg.sender_id,
-            'sender_username': msg.sender.username,  # 👈 Add this
+            'sender_username': msg.sender.username,
             'receiver_id': msg.receiver_id,
             'content': msg.content,
             'sent_at': msg.sent_at.strftime('%Y-%m-%d %H:%M:%S'),
@@ -393,6 +394,16 @@ def rsvp(event_id):
 
             db.session.commit()
             flash(f"You have successfully RSVP'd to the event {event.title}!", "success")
+
+            # Send confirmation email if RSVP is 'yes'
+            if form.response.data.lower() == 'yes':
+                send_email(
+                    _('[Event RSVP] Confirmation for your registration'),
+                    sender=current_app.config['ADMINS'][0],
+                    recipients=[current_user.email],
+                    text_body=render_template('email/rsvp_confirmation.txt', user=current_user, event=event),
+                    html_body=render_template('email/rsvp_confirmation.html', user=current_user, event=event)
+                )
         else:
             flash("Event not found.", "danger")
     else:
