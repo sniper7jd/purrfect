@@ -1,0 +1,12 @@
+<p>Hi {{ user.username }},</p>
+
+<p>You have successfully RSVP'd <strong>YES</strong> to the event: <em>{{ event.title }}</em>.</p>
+
+<ul>
+  <li><strong>📅 Date & Time:</strong> {{ event.event_time.strftime('%A, %B %d, %Y at %I:%M %p') }}</li>
+  <li><strong>📍 Location:</strong> {{ event.location or 'Location TBD' }}</li>
+</ul>
+
+<p>We're excited to see you there!</p>
+
+<p>Thanks,<br>Purrfect Team</p>
