@@ -64,7 +64,7 @@
             </form>
 
 
-            <!-- Delete form (outside the update form) -->
+
             <form method="POST" action="{{ url_for('main.delete_pet', pet_id=pet.id) }}"
                   onsubmit="return confirm('Are you sure you want to delete this pet?');">
                 <div class="text-center mt-3">
