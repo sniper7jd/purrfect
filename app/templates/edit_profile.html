@@ -4,7 +4,6 @@
 {% block content %}
     <h1>{{ _('Edit Profile') }}</h1>
 
-    <!-- Ensure the form supports file uploads -->
     <form method="POST" enctype="multipart/form-data">
         {{ wtf.quick_form(form) }}
     </form>
