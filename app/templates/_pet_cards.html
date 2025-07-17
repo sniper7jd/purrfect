@@ -12,7 +12,7 @@
                         <p class="mb-1"><strong>Species:</strong> {{ pet.species }}</p>
                         <p class="mb-1"><strong>Age:</strong> {{ pet.age }} years</p>
                         <p class="mb-1"><strong>Location:</strong> {{ pet.location }}</p>
-                        <a href="{{ url_for('main.view_pet', pet_id=pet.id) }}" class="btn btn-info btn-sm w-100">View Pet</a>
+                        <a href="{{ url_for('main.pet_profile', pet_id=pet.id) }}" class="btn btn-info btn-sm w-100">View Pet</a>
                     </div>
                 </div>
             </div>

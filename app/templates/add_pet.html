@@ -28,6 +28,11 @@
     background-color: #5a6268;
     border-color: #545b62;
   }
+
+  .text-danger {
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+  }
 </style>
 
 <div class="container mt-5">
@@ -35,7 +40,7 @@
     <div class="col-md-8">
       <h2 class="mb-4 text-center">Add a New Pet</h2>
 
-      <form method="POST" enctype="multipart/form-data" novalidate>
+      <form id="petForm" method="POST" enctype="multipart/form-data" novalidate>
         {{ form.hidden_tag() }}
 
         <div class="mb-3">
@@ -78,13 +83,21 @@
           {% endfor %}
         </div>
 
-        <div class="mb-3">
+        <div class="mb-3 position-relative">
           {{ form.location.label(class="form-label") }}
-          {{ form.location(class="form-control custom-border", placeholder="Where is your pet located?") }}
+          {{ form.location(class="form-control custom-border", id="autocomplete", placeholder="Where is your pet located?", autocomplete="off") }}
+          <div id="location-error" class="text-danger" style="display:none; margin-top:0.25rem;">
+            Please select a location from the suggestions.
+          </div>
           {% for error in form.location.errors %}
             <div class="text-danger">{{ error }}</div>
           {% endfor %}
         </div>
+
+        <!-- Hidden fields to capture location metadata -->
+        <input type="hidden" id="latitude" name="latitude" value="{{ request.form.latitude or '' }}">
+        <input type="hidden" id="longitude" name="longitude" value="{{ request.form.longitude or '' }}">
+        <input type="hidden" id="place_id" name="place_id" value="{{ request.form.place_id or '' }}">
 
         <div class="mb-3">
           {{ form.pet_picture.label(class="form-label") }}
@@ -110,4 +123,68 @@
     </div>
   </div>
 </div>
+
+<!-- Load Google Maps JavaScript API with Places library -->
+<script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places" defer></script>
+
+<script>
+  let autocomplete;
+  let placeSelected = false;
+
+  function initAutocomplete() {
+    const input = document.getElementById("autocomplete");
+    autocomplete = new google.maps.places.Autocomplete(input);
+    autocomplete.setFields(["geometry", "place_id", "formatted_address"]);
+
+    autocomplete.addListener("place_changed", function () {
+      const place = autocomplete.getPlace();
+
+      if (!place.geometry) {
+        // User did not select a place from the suggestions
+        placeSelected = false;
+        clearLocationFields();
+        return;
+      }
+
+      // User selected a valid place
+      placeSelected = true;
+
+      // Fill hidden inputs
+      document.getElementById("latitude").value = place.geometry.location.lat();
+      document.getElementById("longitude").value = place.geometry.location.lng();
+      document.getElementById("place_id").value = place.place_id;
+
+      // Set input value to formatted address (optional)
+      input.value = place.formatted_address;
+
+      // Hide error if any
+      document.getElementById("location-error").style.display = "none";
+    });
+
+    // If user manually changes input (without selecting suggestion), mark placeSelected false
+    input.addEventListener('input', function() {
+      placeSelected = false;
+      clearLocationFields();
+    });
+  }
+
+  function clearLocationFields() {
+    document.getElementById("latitude").value = '';
+    document.getElementById("longitude").value = '';
+    document.getElementById("place_id").value = '';
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    initAutocomplete();
+
+    const form = document.getElementById("petForm");
+    form.addEventListener("submit", function (e) {
+      if (!placeSelected) {
+        e.preventDefault();
+        document.getElementById("location-error").style.display = "block";
+        document.getElementById("autocomplete").focus();
+      }
+    });
+  });
+</script>
 {% endblock %}

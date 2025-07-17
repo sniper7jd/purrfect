@@ -37,7 +37,7 @@ class User(UserMixin, db.Model):
         return f'<User {self.username}>'
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
@@ -106,7 +106,12 @@ class Pet(db.Model):
     species: so.Mapped[Optional[str]] = so.mapped_column(sa.String(100))
     bio: so.Mapped[Optional[str]] = so.mapped_column(sa.Text)
     interests: so.Mapped[Optional[str]] = so.mapped_column(sa.String(200))
+
     location: so.Mapped[Optional[str]] = so.mapped_column(sa.String(255))
+    place_id: so.Mapped[Optional[str]] = so.mapped_column(sa.String(100))
+    latitude: so.Mapped[Optional[float]] = so.mapped_column()
+    longitude: so.Mapped[Optional[float]] = so.mapped_column()
+
     pet_picture: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     is_active: so.Mapped[bool] = so.mapped_column(default=True)
     created_at: so.Mapped[datetime] = so.mapped_column(default=lambda: datetime.now(timezone.utc))

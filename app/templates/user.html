@@ -33,7 +33,7 @@
                         {% if user.liked_pets %}
                             {% for pet in user.liked_pets %}
                                 <div class="card d-inline-block border-0 shadow-sm" style="width: 180px; margin-right: 15px;">
-                                    <a href="{{ url_for('main.view_pet', pet_id=pet.id) }}">
+                                    <a href="{{ url_for('main.pet_profile', pet_id=pet.id) }}">
                                         <img src="{{ url_for('static', filename=pet.pet_picture) if pet.pet_picture else url_for('static', filename='default_pet.png') }}"
                                              class="card-img-top rounded-top" alt="{{ pet.name }}"
                                              style="object-fit: cover; height: 140px; width: 100%;">

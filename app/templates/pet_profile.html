@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% block content %}
 <div class="container mt-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -54,8 +55,10 @@
           </div>
 
           <!-- Owner Info Section -->
+
           <div class="col-md-6 d-flex flex-column align-items-center justify-content-center text-center border-start pt-md-0 pt-4">
-            <img src="{{ url_for('static', filename=pet.owner.profile_picture) if pet.owner.profile_picture else url_for('static', filename='default_user.png') }}"
+          <h5 class="mb-3 fw-bold">Owner Details</h5>
+            <img src="{{ url_for('static', filename=pet.owner.profile_picture) if pet.owner.profile_picture else url_for('static', filename='default_pet.png') }}"
                  class="rounded-circle mb-3"
                  alt="{{ pet.owner.username }}"
                  style="width: 150px; height: 150px; object-fit: cover;">
@@ -64,12 +67,20 @@
             <h5 class="fw-bold">Username: {{ pet.owner.username }}</h5>
             <h5 class="fw-bold">Bio: {{ pet.owner.bio }}</h5>
 
-
             {% if current_user.id != pet.owner.id %}
               <button class="btn btn-primary mt-3"
                       onclick="window.location.href='{{ url_for('main.chat', user_id=pet.owner.id) }}'">
                 💬 Message Owner
               </button>
+            {% endif %}
+
+            <!-- Map showing pet location -->
+            {% if pet.latitude and pet.longitude %}
+            <div id="pet-location-map"
+                 style="width: 100%; height: 250px; margin-top: 30px; border: 2px solid #007bff; border-radius: 10px; cursor: pointer;"
+                 title="Click to view all pets on the map"
+                 onclick="window.location.href='{{ url_for('main.map_view') }}'">
+            </div>
             {% endif %}
           </div>
 
@@ -79,7 +90,7 @@
   </div>
 </div>
 
-<!-- AJAX Script -->
+<!-- AJAX Script for Like/Unlike -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const likeContainer = document.getElementById('like-container');
@@ -120,4 +131,43 @@ document.addEventListener('DOMContentLoaded', function () {
   attachLikeEvent();
 });
 </script>
+
+<!-- Google Maps for pet location -->
+<script>
+function initPetLocationMap() {
+  {% if pet.latitude and pet.longitude %}
+  const petPosition = { lat: {{ pet.latitude }}, lng: {{ pet.longitude }} };
+  const map = new google.maps.Map(document.getElementById("pet-location-map"), {
+    center: petPosition,
+    zoom: 14,
+    disableDefaultUI: true,
+    gestureHandling: "none",
+  });
+
+  new google.maps.Marker({
+    position: petPosition,
+    map: map,
+    title: "{{ pet.name }}",
+  });
+  {% endif %}
+}
+
+// Load the map script and initialize
+function loadGoogleMapsScript(callback) {
+  if (typeof google === 'object' && typeof google.maps === 'object') {
+    callback();
+  } else {
+    const script = document.createElement('script');
+    script.src = "https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initPetLocationMap";
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadGoogleMapsScript(initPetLocationMap);
+});
+</script>
+
 {% endblock %}

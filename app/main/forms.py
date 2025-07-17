@@ -3,7 +3,7 @@ from flask_wtf.file import FileAllowed
 from wtforms import StringField, SubmitField, TextAreaField, IntegerField
 from wtforms.fields.choices import RadioField
 from wtforms.fields.simple import BooleanField, FileField
-from wtforms.validators import ValidationError, DataRequired, Length, Optional, URL, InputRequired
+from wtforms.validators import ValidationError, DataRequired, Length, Optional, URL, InputRequired, NumberRange
 import sqlalchemy as sa
 from flask_babel import _, lazy_gettext as _l
 from app import db
@@ -38,7 +38,7 @@ class EmptyForm(FlaskForm):
 class PetForm(FlaskForm):
     name = StringField('Pet Name', validators=[DataRequired()])
     species = StringField('Species', validators=[DataRequired()])
-    age = IntegerField('Age', validators=[DataRequired()])
+    age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=1, message="Age must be greater than 0.")])
     bio = TextAreaField('Bio', validators=[Optional()])
     interests = StringField('Interests', validators=[Optional()])
     location = StringField('Location', [DataRequired()])
@@ -46,11 +46,18 @@ class PetForm(FlaskForm):
     is_active = BooleanField('Active?', default=True)
     submit = SubmitField('Add Pet')
 
+
 class BlogPostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     content = TextAreaField('Content', validators=[DataRequired()])
-    submit = SubmitField('Create Post')
 
+    # Custom validator for word count
+    def validate_content(self, field):
+        word_count = len(field.data.split())
+        if word_count < 100:
+            raise ValidationError('Content must be at least 100 words.')
+
+    submit = SubmitField('Submit')
 
 class RSVPForm(FlaskForm):
     response = RadioField(
