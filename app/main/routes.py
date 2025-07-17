@@ -102,9 +102,10 @@ def suggest():
     return jsonify(suggestions)
 
 @bp.route('/pet/<int:pet_id>')
-def view_pet(pet_id):
+def pet_profile(pet_id):
     pet = Pet.query.get_or_404(pet_id)  # Fetch the pet by its ID
-    return render_template('view_pet.html', pet=pet)
+
+    return render_template('pet_profile.html', pet=pet, api_key=current_app.config['PLACES_API_KEY'])
 
 @bp.route('/like/<int:pet_id>', methods=['POST'])
 @login_required
@@ -214,6 +215,41 @@ def create_post():
         return redirect(url_for('main.blog'))  # Redirect to blog post listing
     return render_template('create_post.html', form=form)
 
+
+# Route to edit a blog post
+@bp.route('/edit_post/<int:post_id>', methods=['GET', 'POST'])
+@login_required
+def edit_post(post_id):
+    post = BlogPost.query.get_or_404(post_id)
+    if post.author != current_user:
+        flash("You don't have permission to edit this post.", 'danger')
+        return redirect(url_for('main.blog'))
+
+    form = BlogPostForm(obj=post)  # Prepopulate form with existing data
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        db.session.commit()
+        flash('Post updated successfully!', 'success')
+        return redirect(url_for('main.blog'))
+
+    return render_template('create_post.html', form=form, edit=True)
+
+
+# Route to delete a blog post
+@bp.route('/delete_post/<int:post_id>', methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = BlogPost.query.get_or_404(post_id)
+    if post.author != current_user:
+        flash("You don't have permission to delete this post.", 'danger')
+        return redirect(url_for('main.blog'))
+
+    db.session.delete(post)
+    db.session.commit()
+    flash('Post deleted successfully!', 'success')
+    return redirect(url_for('main.blog'))
+
 @bp.route('/events')
 def events():
     # Fetch all events from the database
@@ -303,6 +339,15 @@ def user(username):
 def add_pet():
     form = PetForm()
     if form.validate_on_submit():
+        # Validate location metadata
+        latitude = request.form.get('latitude', type=float)
+        longitude = request.form.get('longitude', type=float)
+        place_id = request.form.get('place_id', type=str)
+
+        if not latitude or not longitude or not place_id:
+            flash('Please select a valid location from the suggestions.', 'danger')
+            return render_template('add_pet.html', form=form)
+
         file = form.pet_picture.data
         picture_path = None
 
@@ -320,6 +365,9 @@ def add_pet():
             interests=form.interests.data,
             is_active=form.is_active.data,
             location=form.location.data.title(),
+            latitude=latitude,
+            longitude=longitude,
+            place_id=place_id,
             pet_picture=picture_path,
             owner=current_user
         )
@@ -329,7 +377,8 @@ def add_pet():
         flash('Your pet has been added!', 'success')
         return redirect(url_for('main.user', username=current_user.username))
 
-    return render_template('add_pet.html', form=form)
+    return render_template('add_pet.html', form=form, api_key=current_app.config['PLACES_API_KEY'])
+
 
 
 @bp.route('/edit_pet/<int:pet_id>', methods=['GET', 'POST'])
@@ -339,6 +388,16 @@ def edit_pet(pet_id):
     form = PetForm()
 
     if form.validate_on_submit():
+        # Get location metadata from hidden inputs
+        latitude = request.form.get('latitude', type=float)
+        longitude = request.form.get('longitude', type=float)
+        place_id = request.form.get('place_id', type=str)
+
+        # Validate location fields presence
+        if not latitude or not longitude or not place_id:
+            flash('Please select a valid location from the suggestions.', 'danger')
+            return render_template('edit_pet.html', form=form, pet=pet)
+
         # Update pet attributes
         pet.name = form.name.data
         pet.species = form.species.data
@@ -347,6 +406,11 @@ def edit_pet(pet_id):
         pet.interests = form.interests.data
         pet.is_active = form.is_active.data
         pet.location = form.location.data.title()
+
+        # Update location metadata
+        pet.latitude = latitude
+        pet.longitude = longitude
+        pet.place_id = place_id
 
         # Handle pet picture upload
         file = form.pet_picture.data
@@ -360,15 +424,15 @@ def edit_pet(pet_id):
         flash('Pet updated successfully!', 'success')
         return redirect(url_for('main.user', username=current_user.username))
 
-    # Prepopulate the form with existing pet data for GET requests
     elif request.method == 'GET':
+        # Prepopulate the form fields with existing pet data
         form.name.data = pet.name
         form.species.data = pet.species
         form.age.data = pet.age
         form.bio.data = pet.bio
         form.interests.data = pet.interests
         form.is_active.data = pet.is_active
-        form.location.data = pet.location  # Prepopulate location field
+        form.location.data = pet.location
 
     return render_template('edit_pet.html', form=form, pet=pet)
 
@@ -412,6 +476,35 @@ def edit_profile():
         form.about_me.data = current_user.about_me
 
     return render_template('edit_profile.html', title=_('Edit Profile'), form=form)
+
+@bp.route('/locate', methods=['GET', 'POST'])
+@login_required
+def locate():
+    return render_template('locate.html')
+
+@bp.route('/map_view')
+@login_required
+def map_view():
+    pets = Pet.query.filter(Pet.latitude.isnot(None), Pet.longitude.isnot(None)).all()
+
+    # Center map on average location
+    if pets:
+        avg_lat = sum(p.latitude for p in pets) / len(pets)
+        avg_lng = sum(p.longitude for p in pets) / len(pets)
+    else:
+        avg_lat, avg_lng = 20.5937, 78.9629  # Default to India
+
+    pet_data = [{
+        'id': pet.id,
+        'name': pet.name,
+        'species': pet.species,
+        'latitude': pet.latitude,
+        'longitude': pet.longitude,
+        'image_url': pet.pet_picture or url_for('static', filename='default_pet.png'),
+        'profile_url': url_for('main.pet_profile', pet_id=pet.id)
+    } for pet in pets]
+
+    return render_template('map_view.html', pets=pet_data, avg_lat=avg_lat, avg_lng=avg_lng)
 
 
 

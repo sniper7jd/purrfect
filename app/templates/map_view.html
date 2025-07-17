@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Pets Around the World</h2>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+      <i class="bi bi-arrow-left"></i> Back to Search
+    </a>
+  </div>
+
+  <div id="map" style="height: 600px; width: 100%; border: 2px solid #007bff; border-radius: 10px;"></div>
+</div>
+
+<script>
+  const pets = {{ pets | tojson }};
+  const centerLat = {{ avg_lat }};
+  const centerLng = {{ avg_lng }};
+
+  let map;
+  let activeInfoWindow = null;
+  let infoWindowMouseOver = false;
+
+  function initMap() {
+    map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 4,
+      center: { lat: centerLat, lng: centerLng },
+    });
+
+    pets.forEach(pet => {
+      if (pet.latitude && pet.longitude) {
+        const position = new google.maps.LatLng(pet.latitude, pet.longitude);
+
+        // Use pet image as marker icon
+        const marker = new google.maps.Marker({
+          position: position,
+          map: map,
+          title: `${pet.name} (${pet.species})`,
+          icon: {
+            url: pet.image_url,
+            scaledSize: new google.maps.Size(50, 50),
+            anchor: new google.maps.Point(25, 25),
+          },
+        });
+
+        // Info window content with click handler on div
+        const content = `
+          <div id="info-${pet.id}" style="display: flex; align-items: center; cursor: pointer;">
+            <img src="${pet.image_url}" width="50" height="50" style="border-radius: 50%; margin-right: 10px;">
+            <div>
+              <strong>${pet.name}</strong><br>
+              <span>${pet.species}</span>
+            </div>
+          </div>
+        `;
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: content,
+          disableAutoPan: false,
+        });
+
+        marker.addListener("mouseover", () => {
+          if (activeInfoWindow) activeInfoWindow.close();
+          infoWindow.open(map, marker);
+          activeInfoWindow = infoWindow;
+        });
+
+        marker.addListener("mouseout", () => {
+          setTimeout(() => {
+            if (!infoWindowMouseOver) {
+              infoWindow.close();
+              activeInfoWindow = null;
+            }
+          }, 300);
+        });
+
+        google.maps.event.addListener(infoWindow, "domready", () => {
+          const infoDiv = document.getElementById(`info-${pet.id}`);
+          if (infoDiv) {
+            // Keep info window open when mouse enters it
+            infoDiv.addEventListener("mouseenter", () => {
+              infoWindowMouseOver = true;
+            });
+            // Close info window when mouse leaves
+            infoDiv.addEventListener("mouseleave", () => {
+              infoWindowMouseOver = false;
+              setTimeout(() => {
+                if (!infoWindowMouseOver) {
+                  infoWindow.close();
+                  activeInfoWindow = null;
+                }
+              }, 300);
+            });
+            // Navigate to pet profile on click
+            infoDiv.addEventListener("click", () => {
+              window.location.href = pet.profile_url;
+            });
+          }
+        });
+      }
+    });
+  }
+</script>
+
+<script
+  src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap"
+  async defer>
+</script>
+{% endblock %}

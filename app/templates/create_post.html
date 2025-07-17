@@ -1,21 +1,31 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <div class="container mt-4">
-    <h1>{{ _('Create a New Blog Post') }}</h1>
-    <form method="POST" action="{{ url_for('main.create_post') }}">
-      {{ form.hidden_tag() }}
-      <div class="form-group">
-        {{ form.title.label }}<br>
-        {{ form.title(size=60) }}
-      </div>
-      <div class="form-group">
-        {{ form.content.label }}<br>
-        {{ form.content(rows=8, cols=80) }}
-      </div>
-      <div class="form-group mt-3">
-        {{ form.submit(class_='btn btn-success') }}
-      </div>
+<div class="container mt-4">
+    <h1>{{ 'Edit Post' if edit else 'Create Post' }}</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control") }}
+            {% for error in form.title.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="form-group mt-3">
+            {{ form.content.label(class="form-label") }}
+            {{ form.content(class="form-control", rows="10") }}
+            <small class="form-text text-muted">Minimum 100 words required.</small>
+            {% for error in form.content.errors %}
+                <div class="text-danger">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">
+            {{ 'Update Post' if edit else 'Create Post' }}
+        </button>
     </form>
-  </div>
+</div>
 {% endblock %}
