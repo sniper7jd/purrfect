@@ -25,17 +25,49 @@
         .shadow-custom {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
         }
+                /* Header Styles */
+        header {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #DBDBDB;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            font-family: 'Grand Hotel', cursive;
+        }
+
+        nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #262626;
+            font-size: 16px;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body class="text-gray-800">
 
     <!-- Header -->
-    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-10 border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex items-center gap-2">
-                <h1 class="text-2xl font-bold text-gray-800">PetConnect</h1>
-            </div>
+    <header>
+        <div >
+            <img src="Petconnect.png" alt="PetConnect Logo" style="height:70px;">
         </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="#">Find PlayDates</a>
+            <a href="#">Sitters</a>
+            <a href="#">Events</a>
+            <a href="#">Adoption</a>
+            <a href="pet.html">Profile</a>
+        </nav>
     </header>
 
     <!-- Main Content -->
