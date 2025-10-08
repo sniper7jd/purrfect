@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetConnect Profile: Meet Buddy!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4; /* A warm, friendly beige */
+        }
+        .text-brand {
+            color: #c54a0d; /* A friendly, warm orange */
+        }
+        .bg-brand {
+            background-color: #c54a0d;
+        }
+        .border-brand {
+            border-color: #c54a0d;
+        }
+        .shadow-custom {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-10 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold text-gray-800">PetConnect</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Pet Details -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Pet Intro Section -->
+                <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-custom">
+                    <div class="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+                        <div class="w-full md:w-1/3">
+                            <img src="buddy.webp" 
+                                 alt="A happy Golden Retriever named Buddy holding a tennis ball in a field."
+                                 class="rounded-xl aspect-square w-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <h2 class="text-4xl font-bold text-gray-900">Meet Buddy!</h2>
+                            <p class="text-lg font-medium text-brand mt-1">Golden Retriever</p>
+                            <p class="mt-4 text-gray-600 leading-relaxed">
+                                Hi, I'm Buddy! My friends would describe me as a professional stick-chaser, a certified good boy, and an expert-level cuddle enthusiast. My favorite things are long walks, the crinkle of a treat bag, and making new friends—both human and furry! I'm house-trained, know all my basic commands, and my tail is always wagging.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Details Grid -->
+                    <div class="mt-8 pt-6 border-t border-gray-200 grid grid-cols-2 sm:grid-cols-3 gap-6 text-center">
+                        <div class="bg-orange-50/70 p-4 rounded-lg">
+                            <div class="text-sm text-gray-500">Age</div>
+                            <div class="text-lg font-semibold text-gray-800">4 Years</div>
+                        </div>
+                        <div class="bg-orange-50/70 p-4 rounded-lg">
+                            <div class="text-sm text-gray-500">Weight</div>
+                            <div class="text-lg font-semibold text-gray-800">75 lbs</div>
+                        </div>
+                        <div class="bg-orange-50/70 p-4 rounded-lg">
+                            <div class="text-sm text-gray-500">Gender</div>
+                            <div class="text-lg font-semibold text-gray-800">Male, Neutered</div>
+                        </div>
+                        <div class="bg-orange-50/70 p-4 rounded-lg">
+                            <div class="text-sm text-gray-500">Energy Level</div>
+                            <div class="text-lg font-semibold text-gray-800">High ⚡️</div>
+                        </div>
+                         <div class="bg-orange-50/70 p-4 rounded-lg">
+                            <div class="text-sm text-gray-500">Temperament</div>
+                            <div class="text-lg font-semibold text-gray-800">Friendly & Gentle</div>
+                        </div>
+                         <div class="bg-orange-50/70 p-4 rounded-lg">
+                            <div class="text-sm text-gray-500">Good With</div>
+                            <div class="text-lg font-semibold text-gray-800">Dogs, Kids, Cats</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Reviews Section -->
+                <section id="reviews">
+                    <div class="flex items-center gap-2 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-brand"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+                        <h3 class="text-2xl font-bold">Reviews (18) &middot; 5.0</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Review 1 -->
+                        <div class="bg-white rounded-2xl p-6 shadow-custom">
+                            <div class="flex items-center gap-4">
+                                <img src="https://placehold.co/48x48/E2E8F0/4A5568?text=SK" class="w-12 h-12 rounded-full" alt="Sarah K."/>
+                                <div>
+                                    <p class="font-semibold">Sarah K. (Pet Sitter)</p>
+                                    <div class="flex items-center text-sm text-gray-500">⭐⭐⭐⭐⭐</div>
+                                </div>
+                            </div>
+                            <p class="mt-4 text-gray-600 italic">"An absolute dream to sit for! Buddy is so well-behaved and affectionate... Can't wait to watch him again!"</p>
+                        </div>
+                        <!-- Review 2 -->
+                         <div class="bg-white rounded-2xl p-6 shadow-custom">
+                            <div class="flex items-center gap-4">
+                                <img src="https://placehold.co/48x48/E2E8F0/4A5568?text=MR" class="w-12 h-12 rounded-full" alt="Mike R."/>
+                                <div>
+                                    <p class="font-semibold">Mike R. & Luna 🐾</p>
+                                    <div class="flex items-center text-sm text-gray-500">⭐⭐⭐⭐⭐</div>
+                                </div>
+                            </div>
+                            <p class="mt-4 text-gray-600 italic">"We met Buddy and Alex at the park. Buddy is the friendliest Golden! He and our dog Luna had a blast playing fetch."</p>
+                        </div>
+                        <!-- Review 3 -->
+                        <div class="bg-white rounded-2xl p-6 shadow-custom">
+                            <div class="flex items-center gap-4">
+                                <img src="https://placehold.co/48x48/E2E8F0/4A5568?text=CT" class="w-12 h-12 rounded-full" alt="Chloe T."/>
+                                <div>
+                                    <p class="font-semibold">Chloe T. (Dog Walker)</p>
+                                    <div class="flex items-center text-sm text-gray-500">⭐⭐⭐⭐⭐</div>
+                                </div>
+                            </div>
+                            <p class="mt-4 text-gray-600 italic">"Buddy is one of my favorite clients. He walks perfectly on the leash and is always so excited for our adventures."</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <button class="font-semibold text-brand border-2 border-brand px-6 py-2 rounded-full hover:bg-brand hover:text-white transition-colors duration-300">
+                            Show all 18 reviews
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Owner & Verification -->
+            <div class="lg:col-span-1 space-y-8">
+                <!-- Owner Card -->
+                <aside class="bg-white rounded-2xl p-6 shadow-custom">
+                     <h3 class="text-2xl font-bold mb-4">Owner Details</h3>
+                     <div class="flex items-center gap-4">
+                        <img src="https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=2071&auto=format&fit=crop" 
+                             alt="Photo of Alex Chen, Buddy's owner"
+                             class="w-16 h-16 rounded-full object-cover">
+                        <div>
+                            <p class="text-xl font-semibold">Alex Chen</p>
+                            <p class="text-gray-500">South Hill, NY</p>
+                        </div>
+                     </div>
+                     <p class="mt-4 text-gray-600 text-sm">
+                        Experienced dog owner and a firm believer in positive reinforcement. We're looking for friendly playdates for Buddy and occasional pet-sitting from trusted, local sitters.
+                     </p>
+                     <div class="mt-4 pt-4 border-t border-gray-200 text-sm space-y-2">
+                        <p><span class="font-semibold">Member since:</span> June 2024</p>
+                        <p><span class="font-semibold">Response Rate:</span> 98%</p>
+                     </div>
+                     <button class="w-full mt-6 bg-brand text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 transition-opacity">
+                         Contact Alex
+                     </button>
+                </aside>
+
+                <!-- Verification Card -->
+                <aside class="bg-white rounded-2xl p-6 shadow-custom">
+                    <h3 class="text-2xl font-bold mb-4">Verification & Safety</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold mb-2">Owner Verification</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>ID Verified</li>
+                                <li class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>Email Verified</li>
+                                <li class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>Phone Number Verified</li>
+                            </ul>
+                        </div>
+                        <div class="pt-4 border-t border-gray-200">
+                            <h4 class="font-semibold mb-2">Pet Verification</h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>Up-to-Date Vaccinations</li>
+                                <li class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>Microchipped</li>
+                                <li class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>Temperament Assessed</li>
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 mt-12 border-t">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            &copy; 2025 PetConnect. All rights reserved. Find your pet's next best friend.
+        </div>
+    </footer>
+</body>
+</html>
+
