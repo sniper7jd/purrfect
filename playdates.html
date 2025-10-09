@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Playdates - PetConnect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4;
+        }
+        .text-brand {
+            color: #c54a0d;
+        }
+        .bg-brand {
+            background-color: #c54a0d;
+        }
+        .border-brand {
+            border-color: #c54a0d;
+        }
+        .shadow-custom {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+        header {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #DBDBDB;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #262626;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        /* Style for autocomplete suggestions */
+        .list-group-item {
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            background-color: #fff;
+            border: 1px solid rgba(0,0,0,.125);
+        }
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header>
+        <div>
+            <img src="Petconnect.png" alt="PetConnect Logo" style="height:70px;">
+        </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="message.html">Messages</a>
+            <a href="playdates.html">Find PlayDates</a>
+            <a href="sitter.html">Sitters</a>
+            <a href="#">Events</a>
+            <a href="#">Adoption</a>
+            <a href="pet.html">Profile</a>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl sm:text-5xl font-bold text-gray-900">Find Your Pet's Next Best Friend</h1>
+            <p class="mt-2 text-lg text-gray-600">Search for pets in your area ready for a playdate! 🐾</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 mb-6">
+            <div class="relative flex-grow">
+                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <input type="text" name="search" id="search-box" class="block w-full rounded-xl border-gray-300 py-3 pl-12 text-md shadow-sm focus:border-brand focus:ring-brand" placeholder="Search for dogs, cats, corgis..." autocomplete="off">
+                <div id="suggestions" class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg" style="max-height: 200px; overflow-y: auto;"></div>
+            </div>
+        
+            <a href="#" class="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border-2 border-brand px-6 py-3 font-semibold text-brand transition-colors duration-300 hover:bg-black hover:text-white hover:border-black">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 group-hover:text-white">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>View on Map</span>
+            </a>
+        </div>
+
+        <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-custom mb-8">
+            <form method="GET" action="#">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <select name="sort" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm">
+                        <option value="">Sort By</option>
+                        <option value="alpha_asc">Name: A-Z</option>
+                        <option value="alpha_desc">Name: Z-A</option>
+                        <option value="location">Location</option>
+                    </select>
+                    <select name="species" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm">
+                        <option value="">All Species</option>
+                        <option value="Dog">Dog</option>
+                        <option value="Cat">Cat</option>
+                        <option value="Rabbit">Rabbit</option>
+                    </select>
+                    <select name="age" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm">
+                        <option value="">Any Age</option>
+                        <option value="0-2">Puppy / Kitten (0-2 yrs)</option>
+                        <option value="3-5">Adult (3-5 yrs)</option>
+                        <option value="6+">Senior (6+ yrs)</option>
+                    </select>
+                    <a href="#" class="w-full h-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Clear Filters</a>
+                    <button type="submit" class="w-full h-full flex items-center justify-center px-6 py-2 text-sm font-medium text-white bg-brand rounded-lg hover:opacity-90">Apply</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white rounded-2xl shadow-custom overflow-hidden flex flex-col group">
+                <img src="buddy.webp" alt="A happy Golden Retriever named Buddy" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
+                <div class="p-6 flex-grow flex flex-col">
+                    <h3 class="text-2xl font-bold text-gray-900">Buddy</h3>
+                    <p class="text-md text-brand font-medium">Golden Retriever</p>
+                    <div class="mt-2 text-gray-600 space-y-1 text-sm">
+                        <p><strong>Age:</strong> 4 Years</p>
+                        <p><strong>Location:</strong> South Hill, NY</p>
+                    </div>
+                    <a href="pet.html" class="mt-auto w-full text-center font-semibold text-brand border-2 border-brand px-4 py-2 rounded-full hover:bg-brand hover:text-white transition-colors duration-300">View Profile</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-custom overflow-hidden flex flex-col group">
+                <img src="https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?q=80&w=2080&auto=format&fit=crop" alt="A cat named Luna" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
+                <div class="p-6 flex-grow flex flex-col">
+                    <h3 class="text-2xl font-bold text-gray-900">Luna</h3>
+                    <p class="text-md text-brand font-medium">Domestic Shorthair</p>
+                    <div class="mt-2 text-gray-600 space-y-1 text-sm">
+                        <p><strong>Age:</strong> 2 Years</p>
+                        <p><strong>Location:</strong> Downtown, NY</p>
+                    </div>
+                    <a href="#" class="mt-auto w-full text-center font-semibold text-brand border-2 border-brand px-4 py-2 rounded-full hover:bg-brand hover:text-white transition-colors duration-300">View Profile</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-custom overflow-hidden flex flex-col group">
+                <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1935&auto=format&fit=crop" alt="A pug named Max" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
+                <div class="p-6 flex-grow flex flex-col">
+                    <h3 class="text-2xl font-bold text-gray-900">Max</h3>
+                    <p class="text-md text-brand font-medium">Pug</p>
+                    <div class="mt-2 text-gray-600 space-y-1 text-sm">
+                        <p><strong>Age:</strong> 5 Years</p>
+                        <p><strong>Location:</strong> Northside, NY</p>
+                    </div>
+                    <a href="#" class="mt-auto w-full text-center font-semibold text-brand border-2 border-brand px-4 py-2 rounded-full hover:bg-brand hover:text-white transition-colors duration-300">View Profile</a>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-custom overflow-hidden flex flex-col group">
+                <img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?q=80&w=1915&auto=format&fit=crop" alt="A calico cat named Daisy" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
+                <div class="p-6 flex-grow flex flex-col">
+                    <h3 class="text-2xl font-bold text-gray-900">Daisy</h3>
+                    <p class="text-md text-brand font-medium">Calico</p>
+                    <div class="mt-2 text-gray-600 space-y-1 text-sm">
+                        <p><strong>Age:</strong> 6 Years</p>
+                        <p><strong>Location:</strong> East Hill, NY</p>
+                    </div>
+                    <a href="#" class="mt-auto w-full text-center font-semibold text-brand border-2 border-brand px-4 py-2 rounded-full hover:bg-brand hover:text-white transition-colors duration-300">View Profile</a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-custom overflow-hidden flex flex-col group">
+                <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?q=80&w=1770&auto=format&fit=crop" alt="A corgi named Charlie" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
+                <div class="p-6 flex-grow flex flex-col">
+                    <h3 class="text-2xl font-bold text-gray-900">Charlie</h3>
+                    <p class="text-md text-brand font-medium">Corgi</p>
+                    <div class="mt-2 text-gray-600 space-y-1 text-sm">
+                        <p><strong>Age:</strong> 1 Year</p>
+                        <p><strong>Location:</strong> South Hill, NY</p>
+                    </div>
+                    <a href="#" class="mt-auto w-full text-center font-semibold text-brand border-2 border-brand px-4 py-2 rounded-full hover:bg-brand hover:text-white transition-colors duration-300">View Profile</a>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-2xl shadow-custom overflow-hidden flex flex-col group">
+                <img src="https://images.unsplash.com/photo-1529778873920-4da4926a72c2?q=80&w=1936&auto=format&fit=crop" alt="A cool cat with sunglasses named Leo" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
+                <div class="p-6 flex-grow flex flex-col">
+                    <h3 class="text-2xl font-bold text-gray-900">Leo</h3>
+                    <p class="text-md text-brand font-medium">Bengal Mix</p>
+                    <div class="mt-2 text-gray-600 space-y-1 text-sm">
+                        <p><strong>Age:</strong> 3 Years</p>
+                        <p><strong>Location:</strong> Collegetown, NY</p>
+                    </div>
+                    <a href="#" class="mt-auto w-full text-center font-semibold text-brand border-2 border-brand px-4 py-2 rounded-full hover:bg-brand hover:text-white transition-colors duration-300">View Profile</a>
+                </div>
+            </div>
+        </div>
+
+        <nav class="mt-12 flex justify-center">
+            <ul class="flex items-center -space-x-px h-10 text-base">
+                <li>
+                    <a href="#" class="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700">
+                        <span class="sr-only">Previous</span>
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" aria-current="page" class="z-10 flex items-center justify-center px-4 h-10 leading-tight text-white border border-brand bg-brand hover:bg-orange-700">1</a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">2</a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700">3</a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-s-0 border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700">
+                        <span class="sr-only">Next</span>
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </main>
+    
+    <footer class="bg-gray-100 mt-12 border-t">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            &copy; 2025 PetConnect. All rights reserved. Find your pet's next best friend.
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchBox = document.getElementById('search-box');
+            const suggestionsBox = document.getElementById('suggestions');
+
+            searchBox.addEventListener('input', function () {
+                const query = this.value;
+                if (query.length < 2) {
+                    suggestionsBox.innerHTML = '';
+                    return;
+                }
+
+                // This is a placeholder for a real API call
+                const sampleData = ['Golden Retriever', 'Pug', 'Corgi', 'Domestic Shorthair', 'Bengal Mix', 'Buddy', 'Luna', 'Max'];
+                const filteredData = sampleData.filter(item => item.toLowerCase().includes(query.toLowerCase()));
+                
+                suggestionsBox.innerHTML = '';
+                filteredData.forEach(item => {
+                    const suggestion = document.createElement('div');
+                    suggestion.className = 'list-group-item'; // Styled in <head>
+                    suggestion.textContent = item;
+                    suggestion.addEventListener('click', () => {
+                        searchBox.value = item;
+                        suggestionsBox.innerHTML = '';
+                    });
+                    suggestionsBox.appendChild(suggestion);
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!searchBox.contains(e.target)) {
+                    suggestionsBox.innerHTML = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

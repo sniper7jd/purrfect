@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetConnect Profile: Meet Sarah K.!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4; /* A warm, friendly beige */
+        }
+        
+        /* Original Brand Color (Orange) */
+        .text-brand { color: #c54a0d; }
+        .bg-brand { background-color: #c54a0d; }
+        .border-brand { border-color: #c54a0d; }
+
+        /* NEW Sitter Color (Dark Cyan) */
+        .text-sitter { color: #0292b7; }
+        .bg-sitter { background-color: #0292b7; }
+        .border-sitter { border-color: #0292b7; }
+        .bg-sitter-light { background-color: #e6f4f8; }
+
+        .shadow-custom {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+        header {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #DBDBDB;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #262626;
+            font-size: 16px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header>
+        <div >
+            <img src="Petconnect.png" alt="PetConnect Logo" style="height:70px;">
+        </div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="message.html">Messages</a>
+            <a href="playdates.html">Find PlayDates</a>
+            <a href="sitter.html">Sitters</a>
+            <a href="#">Events</a>
+            <a href="#">Adoption</a>
+            <a href="pet.html">Profile</a>
+        </nav>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        
+        <section class="mb-8 text-center">
+            <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop" 
+                 alt="Photo of Sarah K., a friendly pet sitter."
+                 class="w-40 h-40 rounded-full object-cover mx-auto border-4 border-white shadow-lg">
+            <h2 class="text-4xl font-bold text-gray-900 mt-4">Meet Sarah K.!</h2>
+            <p class="text-lg font-medium text-sitter mt-1">Experienced & Loving Pet Sitter</p>
+            <p class="mt-4 text-gray-600 leading-relaxed max-w-2xl mx-auto">
+                Hello! I'm Sarah, a lifelong animal lover with over 5 years of professional pet sitting experience. I believe every pet deserves care that's as unique and special as they are. Whether it's energetic walks, cozy cuddles on the couch, or simply ensuring they're safe and happy while you're away, I provide attentive and responsible care.
+            </p>
+        </section>
+
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1 space-y-8">
+                <aside class="bg-white rounded-2xl p-6 shadow-custom">
+                       <h3 class="text-2xl font-bold mb-4">Book Sarah</h3>
+                        <div class="flex items-baseline justify-start gap-4 mb-4">
+                            <div>
+                                <span class="text-4xl font-bold">$60</span>
+                                <span class="text-lg font-normal text-gray-500">/night</span>
+                            </div>
+                            <div class="text-lg font-normal text-gray-500">or</div>
+                            <div class="text-gray-600">
+                                <span class="text-2xl font-semibold">$15</span>
+                                <span class="text-base font-normal text-gray-500">/hour</span>
+                            </div>
+                        </div>
+                       <div class="space-y-4">
+                           <div>
+                               <label for="check-in" class="block text-sm font-medium text-gray-700">Check In</label>
+                               <input type="date" id="check-in" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sitter focus:ring-sitter sm:text-sm">
+                           </div>
+                           <div>
+                               <label for="check-out" class="block text-sm font-medium text-gray-700">Check Out</label>
+                               <input type="date" id="check-out" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-sitter focus:ring-sitter sm:text-sm">
+                           </div>
+                       </div>
+                       <button class="w-full mt-6 bg-sitter text-white font-bold py-3 px-4 rounded-xl hover:opacity-90 transition-opacity">
+                           Request to Book
+                       </button>
+                       <p class="text-xs text-gray-500 text-center mt-3">You won't be charged yet</p>
+                </aside>
+                
+                <aside class="bg-white rounded-2xl p-6 shadow-custom">
+                    <h3 class="text-2xl font-bold mb-4">Availability</h3>
+                    <div class="text-center font-semibold">October 2025</div>
+                    <div class="grid grid-cols-7 gap-2 mt-4 text-center text-sm">
+                        <div class="text-gray-500">Su</div><div class="text-gray-500">Mo</div><div class="text-gray-500">Tu</div><div class="text-gray-500">We</div><div class="text-gray-500">Th</div><div class="text-gray-500">Fr</div><div class="text-gray-500">Sa</div>
+                        <div></div><div></div><div></div>
+                        <div class="p-1">1</div><div class="p-1">2</div><div class="p-1">3</div><div class="p-1">4</div>
+                        <div class="p-1">5</div><div class="p-1">6</div><div class="p-1">7</div><div class="p-1">8</div>
+                        <div class="p-1 rounded-full bg-cyan-100 font-semibold">9</div>
+                        <div class="p-1 relative"><span class="line-through text-gray-400">10</span></div>
+                        <div class="p-1 relative"><span class="line-through text-gray-400">11</span></div>
+                        <div class="p-1">12</div><div class="p-1">13</div><div class="p-1">14</div><div class="p-1">15</div><div class="p-1">16</div>
+                        <div class="p-1">17</div><div class="p-1">18</div><div class="p-1">19</div><div class="p-1">20</div><div class="p-1">21</div>
+                        <div class="p-1">22</div><div class="p-1">23</div><div class="p-1">24</div><div class="p-1">25</div><div class="p-1">26</div>
+                        <div class="p-1">27</div><div class="p-1">28</div><div class="p-1">29</div><div class="p-1">30</div><div class="p-1">31</div>
+                    </div>
+                    <div class="flex items-center gap-4 mt-4 text-sm">
+                        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-white border"></div> Available</div>
+                        <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-gray-200"></div> Unavailable</div>
+                    </div>
+                </aside>
+            </div>
+
+            <div class="lg:col-span-2 space-y-8">
+                <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-custom">
+                    <h3 class="text-2xl font-bold mb-4">My Details</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                        <div class="bg-sitter-light p-4 rounded-lg text-center">
+                            <div class="text-sm text-gray-500">Services</div>
+                            <div class="text-lg font-semibold text-gray-800">Sitting & Walking</div>
+                        </div>
+                        <div class="bg-sitter-light p-4 rounded-lg text-center">
+                            <div class="text-sm text-gray-500">Experience</div>
+                            <div class="text-lg font-semibold text-gray-800">5+ Years</div>
+                        </div>
+                        <div class="bg-sitter-light p-4 rounded-lg text-center">
+                            <div class="text-sm text-gray-500">Home Type</div>
+                            <div class="text-lg font-semibold text-gray-800">House w/ Fenced Yard</div>
+                        </div>
+                        <div class="bg-sitter-light p-4 rounded-lg text-center">
+                            <div class="text-sm text-gray-500">Can Handle</div>
+                            <div class="text-lg font-semibold text-gray-800">All Dog Sizes, Cats</div>
+                        </div>
+                         <div class="bg-sitter-light p-4 rounded-lg text-center">
+                            <div class="text-sm text-gray-500">First Aid Certified</div>
+                            <div class="text-lg font-semibold text-gray-800">Yes 🩹</div>
+                        </div>
+                         <div class="bg-sitter-light p-4 rounded-lg text-center">
+                            <div class="text-sm text-gray-500">Response Time</div>
+                            <div class="text-lg font-semibold text-gray-800">Within 1 hour</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section class="bg-white rounded-2xl p-6 sm:p-8 shadow-custom">
+                    <h3 class="text-2xl font-bold mb-4">Sitter Verification</h3>
+                    <div class="space-y-4">
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>Background Check Complete</li>
+                            <li class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>ID Verified</li>
+                            <li class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>Pet First Aid Certified</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="reviews">
+                    <div class="flex items-center gap-2 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="text-sitter"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+                        <h3 class="text-2xl font-bold">Reviews (32) &middot; 5.0</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-2xl p-6 shadow-custom">
+                            <div class="flex items-center gap-4">
+                                <img src="https://images.unsplash.com/photo-1557862921-37829c790f19?q=80&w=2071&auto=format&fit=crop" class="w-12 h-12 rounded-full object-cover" alt="Alex C."/>
+                                <div>
+                                    <p class="font-semibold">Alex C. & Buddy 🐾</p>
+                                    <div class="flex items-center text-sm text-gray-500">⭐⭐⭐⭐⭐</div>
+                                </div>
+                            </div>
+                            <p class="mt-4 text-gray-600 italic">"Sarah was fantastic with our Golden Retriever, Buddy! She sent daily photo updates and treated him like her own. We came home to a happy and tired pup. Highly recommend!"</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-custom">
+                            <div class="flex items-center gap-4">
+                                <img src="https://placehold.co/48x48/E2E8F0/4A5568?text=JL" class="w-12 h-12 rounded-full" alt="Jenna L."/>
+                                <div>
+                                    <p class="font-semibold">Jenna L. & Milo</p>
+                                    <div class="flex items-center text-sm text-gray-500">⭐⭐⭐⭐⭐</div>
+                                </div>
+                            </div>
+                            <p class="mt-4 text-gray-600 italic">"I've booked Sarah for weekly dog walks for the past six months. She is incredibly reliable, professional, and our anxious rescue dog absolutely adores her. A true gem!"</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <button class="font-semibold text-sitter border-2 border-sitter px-6 py-2 rounded-full hover:bg-sitter hover:text-white transition-colors duration-300">
+                            Show all 32 reviews
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-100 mt-12 border-t">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            &copy; 2025 PetConnect. All rights reserved. Find your pet's next best friend.
+        </div>
+    </footer>
+</body>
+</html>
