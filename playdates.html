@@ -53,6 +53,13 @@
         .list-group-item:hover {
             background-color: #f8f9fa;
         }
+
+        /* Custom Sitter Colors */
+        .bg-sitter-light { background-color: #eef9fc; }
+        .border-sitter { border-color: #0292b7; }
+        .focus\:border-sitter:focus { border-color: #0292b7; }
+        .focus\:ring-sitter:focus { --tw-ring-color: #0292b7; }
+
     </style>
 </head>
 <body class="text-gray-800">
@@ -62,12 +69,10 @@
             <img src="Petconnect.png" alt="PetConnect Logo" style="height:70px;">
         </div>
         <nav>
-            <a href="index.html">Home</a>
+            <a href="index.html">Feed</a>
             <a href="message.html">Messages</a>
             <a href="playdates.html">Find PlayDates</a>
             <a href="sitter.html">Sitters</a>
-            <a href="#">Events</a>
-            <a href="#">Adoption</a>
             <a href="pet.html">Profile</a>
         </nav>
     </header>
@@ -90,7 +95,7 @@
                 <div id="suggestions" class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg" style="max-height: 200px; overflow-y: auto;"></div>
             </div>
         
-            <a href="#" class="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border-2 border-brand px-6 py-3 font-semibold text-brand transition-colors duration-300 hover:bg-black hover:text-white hover:border-black">
+            <a href="map.html" class="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border-2 border-brand px-6 py-3 font-semibold text-brand transition-colors duration-300 hover:bg-black hover:text-white hover:border-black">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500 group-hover:text-white">
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
                     <circle cx="12" cy="10" r="3"></circle>
@@ -123,6 +128,43 @@
                     <a href="#" class="w-full h-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Clear Filters</a>
                     <button type="submit" class="w-full h-full flex items-center justify-center px-6 py-2 text-sm font-medium text-white bg-brand rounded-lg hover:opacity-90">Apply</button>
                 </div>
+                
+                <div class="mt-4 p-4 rounded-lg bg-orange-50">
+                    <div class="flex items-center gap-2 mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-brand"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+                        <h3 class="text-md font-semibold text-gray-800">Smart Matching</h3>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <select name="temperament" class="block w-full rounded-lg shadow-sm sm:text-sm bg-sitter-light border border-sitter focus:border-sitter focus:ring-sitter">
+                            <option value="">Any Temperament</option>
+                            <option value="calm">Calm & Gentle</option>
+                            <option value="playful">Playful & Energetic</option>
+                            <option value="shy">Shy & Cautious</option>
+                            <option value="independent">Independent</option>
+                        </select>
+                        <select name="energy" class="block w-full rounded-lg shadow-sm sm:text-sm bg-sitter-light border border-sitter focus:border-sitter focus:ring-sitter">
+                            <option value="">Any Energy Level</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                        <select name="training" class="block w-full rounded-lg shadow-sm sm:text-sm bg-sitter-light border border-sitter focus:border-sitter focus:ring-sitter">
+                            <option value="">Any Training Level</option>
+                            <option value="basic">Basic Commands</option>
+                            <option value="advanced">Advanced Training</option>
+                            <option value="in-training">In Training</option>
+                        </select>
+                        <select name="social" class="block w-full rounded-lg shadow-sm sm:text-sm bg-sitter-light border border-sitter focus:border-sitter focus:ring-sitter">
+                            <option value="">Socially Comfortable</option>
+                            <option value="groups">Good in Groups</option>
+                            <option value="one-on-one">Prefers One-on-One</option>
+                            <option value="slow-intro">Needs Slow Intros</option>
+                        </select>
+                        <button type="button" class="w-full h-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gray-700 rounded-lg hover:bg-black" title="Automatically apply filters based on your pet's profile">
+                            Match My Pet
+                        </button>
+                    </div>
+                </div>
             </form>
         </div>
 
@@ -154,7 +196,7 @@
             </div>
 
             <div class="bg-white rounded-2xl shadow-custom overflow-hidden flex flex-col group">
-                <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1935&auto=format&fit=crop" alt="A pug named Max" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
+                <img src="https://images.unsplash.com/photo-1517849845537-4d257902454a?q=80&w=1935&auto=format=fit=crop" alt="A pug named Max" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
                 <div class="p-6 flex-grow flex flex-col">
                     <h3 class="text-2xl font-bold text-gray-900">Max</h3>
                     <p class="text-md text-brand font-medium">Pug</p>
