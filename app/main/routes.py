@@ -1,5 +1,8 @@
-import os
+import os, json
+import traceback
 from datetime import datetime, timezone
+
+from dotenv import load_dotenv
 import requests
 from flask import render_template, flash, redirect, url_for, request, g, \
     current_app, abort, jsonify
@@ -14,6 +17,7 @@ from app.main.forms import EditProfileForm, EmptyForm, PetForm, BlogPostForm, RS
 from app.models import User, Pet, Message, BlogPost, Event, EventRSVP
 from app.translate import translate
 from app.main import bp
+from openai import OpenAI
 
 
 @bp.before_app_request
@@ -506,14 +510,143 @@ def map_view():
 
     return render_template('map_view.html', pets=pet_data, avg_lat=avg_lat, avg_lng=avg_lng)
 
+load_dotenv()
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+@bp.route("/ask-bot", methods=["POST"])
+def ask_bot():
+    try:
+        data = request.get_json()
+        question = data.get("question", "").strip()
+
+        if not question:
+            return jsonify({"answer": "Please ask a valid question."})
+
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "You are Scooby, a playful and friendly pet assistant. "
+                    "Your personality is cheerful, helpful, and full of pet puns 😸. "
+                    "You help users navigate the Purrfect Match website, which is designed "
+                    "to help pets and their owners find playdates. "
+                    "Always answer questions clearlyx"
+                    "Only on the first message, introduce yourself to the user as Scooby."
+                )
+            },
+            {"role": "user", "content": question}
+        ]
+
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages
+        )
+
+        answer = response.choices[0].message.content
+
+        return jsonify({"answer": answer})
+
+    except Exception as e:
+        print("ERROR in /ask-bot:", e)
+        return jsonify({"answer": f"Oops! Something went wrong: {str(e)}"}), 500
+
+
+
+# --- ✅ Dummy Data Seeder ---
+def seed_dummy_data():
+    try:
+        if User.query.first():  # Skip if DB already has data
+            return
+
+        json_path = os.path.join(current_app.root_path, "dummy_data.json")
+        with open(json_path, "r") as f:
+            data = json.load(f)
+
+        # --- Users ---
+        users = {}
+        for u in data.get("users", []):
+            user = User(
+                name=u["name"],
+                username=u["username"],
+                email=u["email"],
+                about_me=u.get("about_me")
+            )
+            user.set_password(u["password"])
+            db.session.add(user)
+            users[u["username"]] = user
+        db.session.commit()
+
+        # --- Pets ---
+        for p in data.get("pets", []):
+            owner = users.get(p["owner_username"])
+            if owner:
+                pet = Pet(
+                    owner=owner,
+                    name=p["name"],
+                    species=p["species"],
+                    age=p.get("age", 0),
+                    bio=p.get("bio"),
+                    interests=p.get("interests"),
+                    location=p.get("location"),
+                    is_active=True
+                )
+                db.session.add(pet)
+
+        # --- Events ---
+        for e in data.get("events", []):
+            event = Event(
+                title=e["title"],
+                description=e.get("description"),
+                location=e.get("location"),
+                event_time=datetime.fromisoformat(e["event_time"].replace("Z", "+00:00"))
+            )
+            db.session.add(event)
+
+        # --- Blog Posts ---
+        for b in data.get("blog_posts", []):
+            author = users.get(b["author_username"])
+            if author:
+                post = BlogPost(
+                    title=b["title"],
+                    content=b["content"],
+                    author=author
+                )
+                db.session.add(post)
+
+        db.session.commit()
+        print("✅ Dummy data loaded successfully!")
+
+    except Exception as e:
+        print("❌ Dummy data seeding failed:", e)
+
+
+
+def translate(text, source_language, dest_language):
+    prompt = (
+        f"Translate the following text from {source_language} to {dest_language}:\n\n{text}"
+    )
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are a helpful translation assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response.choices[0].message.content.strip()
 
 
 @bp.route('/translate', methods=['POST'])
 @login_required
 def translate_text():
-    data = request.get_json()
-    return {'text': translate(data['text'],
-                              data['source_language'],
-                              data['dest_language'])}
+    try:
+        data = request.get_json()
+        translated = translate(
+            data['text'], data['source_language'], data['dest_language']
+        )
+        return jsonify({'text': translated})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 
 
