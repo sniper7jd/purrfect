@@ -134,5 +134,132 @@
         document.getElementById(destElem).innerText = data.text;
       }
     </script>
+
+<!-- 🤖 Robot Assistant -->
+<div class="robot-assistant" id="robotAssistant">
+  <img src="{{ url_for('static', filename='scooby.svg') }}" alt="AI Bot" class="robot-icon">
+</div>
+
+<div class="chatbox" id="chatbox">
+  <div class="chat-header">
+    🤖 Purrfect Helper
+    <span id="closeChat" style="float:right; cursor:pointer;">✖</span>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <input type="text" id="chatInput" placeholder="Ask me anything..." />
+</div>
+
+<style>
+/* Robot button */
+.robot-assistant {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #222;
+  padding: 0;
+  box-shadow: 0 0 20px rgba(0,255,255,0.6);
+  cursor: pointer;
+  animation: pulse 1.5s infinite;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.robot-icon {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+@keyframes pulse {
+  0% { box-shadow: 0 0 10px rgba(0,255,255,0.6); }
+  50% { box-shadow: 0 0 25px rgba(0,255,255,1); }
+  100% { box-shadow: 0 0 10px rgba(0,255,255,0.6); }
+}
+
+/* Chatbox */
+.chatbox {
+  display: none;
+  flex-direction: column;
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 280px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  overflow: hidden;
+  z-index: 1000;
+}
+.chat-header {
+  background: #222;
+  color: #fff;
+  padding: 8px;
+  font-weight: bold;
+}
+.chat-messages {
+  height: 180px;
+  padding: 8px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+#chatInput {
+  border: none;
+  padding: 8px;
+  outline: none;
+  border-top: 1px solid #ddd;
+}
+</style>
+
+<script>
+const robot = document.getElementById('robotAssistant');
+const chatbox = document.getElementById('chatbox');
+const messages = document.getElementById('chatMessages');
+const input = document.getElementById('chatInput');
+const closeChat = document.getElementById('closeChat');
+
+// Toggle chatbox
+robot.addEventListener('click', () => {
+  chatbox.style.display = (chatbox.style.display === 'flex') ? 'none' : 'flex';
+});
+
+// Close button
+closeChat.addEventListener('click', () => {
+  chatbox.style.display = 'none';
+});
+
+// Send question to backend
+input.addEventListener('keypress', async (e) => {
+  if (e.key === 'Enter') {
+    const question = input.value.trim();
+    if (!question) return;
+
+    messages.innerHTML += `<div><b>You:</b> ${question}</div>`;
+    input.value = '';
+
+    // Show thinking pulse
+    robot.style.animation = 'pulse 0.5s infinite';
+
+    const res = await fetch('/ask-bot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question })
+    });
+    const data = await res.json();
+
+    messages.innerHTML += `<div><b>Scooby:</b> ${data.answer}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+
+    // Reset pulse
+    robot.style.animation = 'pulse 1.5s infinite';
+  }
+});
+</script>
+
+
+
+
   </body>
 </html>
