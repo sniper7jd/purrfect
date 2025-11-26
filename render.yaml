@@ -9,6 +9,7 @@ services:
     name: petconnect
     runtime: python
     plan: free
+    rootDir: petconnect
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
     startCommand: daphne -b 0.0.0.0 -p $PORT petconnect.asgi:application
     envVars:
@@ -24,4 +25,3 @@ services:
         sync: false
       - key: PLACES_API_KEY
         sync: false
-
