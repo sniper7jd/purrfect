@@ -331,14 +331,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Prompt for location access on page load
-    setTimeout(function() {
-        if (navigator.geolocation && !input.value) {
-            if (confirm('Would you like to auto-detect your location for your pet\'s profile?')) {
-                detectBtn.click();
-            }
-        }
-    }, 1000);
 });
 </script>
 {% endblock %}
