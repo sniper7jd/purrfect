@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Find Playdates - PetConnect{% endblock %}
+
+{% block content %}
+<main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="text-center mb-8">
+        <h1 class="text-4xl sm:text-5xl font-bold text-gray-900">Find Your Pet's Next Best Friend</h1>
+        <p class="mt-2 text-lg text-gray-600">Search for pets in your area ready for a playdate! 🐾</p>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 mb-8">
+        <form method="GET" action="{% url 'playdates:discover' %}">
+            <!-- Search Bar -->
+            <div class="flex flex-col sm:flex-row gap-4 mb-6">
+                <div class="relative flex-grow">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" name="search" id="search-box" 
+                           class="block w-full rounded-xl border-gray-300 py-3 pl-12 text-md shadow-sm focus:border-brand focus:ring-brand" 
+                           placeholder="Search for dogs, cats, breeds..." 
+                           value="{{ request.GET.search|default:'' }}"
+                           autocomplete="off">
+                    <div id="suggestions" class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg hidden"></div>
+                </div>
+            
+                <a href="{% url 'playdates:map' %}" class="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border-2 border-brand px-6 py-3 font-semibold text-brand transition-colors duration-300 hover:bg-brand hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>View on Map</span>
+                </a>
+            </div>
+
+            <!-- Basic Filters -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <select name="sort" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm">
+                    <option value="">Sort By</option>
+                    <option value="alpha_asc" {% if request.GET.sort == 'alpha_asc' %}selected{% endif %}>Name: A-Z</option>
+                    <option value="alpha_desc" {% if request.GET.sort == 'alpha_desc' %}selected{% endif %}>Name: Z-A</option>
+                    <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Most Popular</option>
+                </select>
+                <select name="species" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm">
+                    <option value="">All Species</option>
+                    {% for sp in species_choices %}
+                    <option value="{{ sp }}" {% if request.GET.species == sp %}selected{% endif %}>{{ sp }}</option>
+                    {% endfor %}
+                </select>
+                <select name="age" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm">
+                    <option value="">Any Age</option>
+                    <option value="0-2" {% if request.GET.age == '0-2' %}selected{% endif %}>Puppy / Kitten (0-2 yrs)</option>
+                    <option value="3-5" {% if request.GET.age == '3-5' %}selected{% endif %}>Adult (3-5 yrs)</option>
+                    <option value="6+" {% if request.GET.age == '6+' %}selected{% endif %}>Senior (6+ yrs)</option>
+                </select>
+                <a href="{% url 'playdates:discover' %}" class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">Clear Filters</a>
+                <button type="submit" class="w-full flex items-center justify-center px-6 py-2 text-sm font-medium text-white bg-brand rounded-lg hover:opacity-90">Apply</button>
+            </div>
+            
+            <!-- Smart Matching Filters -->
+            <div class="mt-4 p-4 rounded-lg bg-orange-50">
+                <div class="flex items-center gap-2 mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <h3 class="text-md font-semibold text-gray-800">Smart Matching</h3>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <select name="temperament" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 focus:border-brand focus:ring-brand">
+                        <option value="">Any Temperament</option>
+                        <option value="calm" {% if request.GET.temperament == 'calm' %}selected{% endif %}>Calm & Gentle</option>
+                        <option value="playful" {% if request.GET.temperament == 'playful' %}selected{% endif %}>Playful & Energetic</option>
+                        <option value="shy" {% if request.GET.temperament == 'shy' %}selected{% endif %}>Shy & Cautious</option>
+                        <option value="independent" {% if request.GET.temperament == 'independent' %}selected{% endif %}>Independent</option>
+                    </select>
+                    <select name="energy" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 focus:border-brand focus:ring-brand">
+                        <option value="">Any Energy Level</option>
+                        <option value="low" {% if request.GET.energy == 'low' %}selected{% endif %}>Low</option>
+                        <option value="medium" {% if request.GET.energy == 'medium' %}selected{% endif %}>Medium</option>
+                        <option value="high" {% if request.GET.energy == 'high' %}selected{% endif %}>High</option>
+                    </select>
+                    <select name="training" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 focus:border-brand focus:ring-brand">
+                        <option value="">Any Training Level</option>
+                        <option value="basic" {% if request.GET.training == 'basic' %}selected{% endif %}>Basic Commands</option>
+                        <option value="advanced" {% if request.GET.training == 'advanced' %}selected{% endif %}>Advanced Training</option>
+                        <option value="in_training" {% if request.GET.training == 'in_training' %}selected{% endif %}>In Training</option>
+                    </select>
+                    <select name="social" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 focus:border-brand focus:ring-brand">
+                        <option value="">Social Preference</option>
+                        <option value="groups" {% if request.GET.social == 'groups' %}selected{% endif %}>Good in Groups</option>
+                        <option value="one_on_one" {% if request.GET.social == 'one_on_one' %}selected{% endif %}>Prefers One-on-One</option>
+                        <option value="slow_intro" {% if request.GET.social == 'slow_intro' %}selected{% endif %}>Needs Slow Intros</option>
+                    </select>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'playdates:smart_match' %}" class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gray-700 rounded-lg hover:bg-black">
+                        Match My Pet
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Pet Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for pet in pets %}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-lg transition-shadow">
+            <a href="{% url 'pets:profile' pet_id=pet.id %}">
+                {% if pet.picture %}
+                <img src="{{ pet.picture.url }}" alt="{{ pet.name }}" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
+                {% else %}
+                <div class="h-64 w-full bg-brand flex items-center justify-center text-white text-6xl font-bold">
+                    {{ pet.name|slice:":1" }}
+                </div>
+                {% endif %}
+            </a>
+            <div class="p-6 flex-grow flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-900">{{ pet.name }}</h3>
+                <p class="text-md text-brand font-medium">{{ pet.breed|default:pet.species }}</p>
+                <div class="mt-2 text-gray-600 space-y-1 text-sm">
+                    <p><strong>Age:</strong> {{ pet.age_display }}</p>
+                    <p><strong>Location:</strong> {{ pet.location|default:"Not specified" }}</p>
+                </div>
+                <a href="{% url 'pets:profile' pet_id=pet.id %}" class="mt-auto pt-4 w-full text-center font-semibold text-brand border-2 border-brand px-4 py-2 rounded-full hover:bg-brand hover:text-white transition-colors duration-300">View Profile</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <div class="text-6xl mb-4">🔍</div>
+            <h3 class="text-xl font-semibold mb-2">No pets found</h3>
+            <p class="text-gray-500">Try adjusting your filters or search terms.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pets.has_other_pages %}
+    <nav class="mt-12 flex justify-center">
+        <ul class="flex items-center -space-x-px">
+            {% if pets.has_previous %}
+            <li>
+                <a href="?page={{ pets.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                   class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100">
+                    Previous
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in pets.paginator.page_range %}
+                {% if pets.number == num %}
+                <li>
+                    <span class="flex items-center justify-center px-4 h-10 leading-tight text-white border border-brand bg-brand">{{ num }}</span>
+                </li>
+                {% elif num > pets.number|add:'-3' and num < pets.number|add:'3' %}
+                <li>
+                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                       class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if pets.has_next %}
+            <li>
+                <a href="?page={{ pets.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                   class="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100">
+                    Next
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</main>
+
+<script>
+// Search autocomplete
+const searchBox = document.getElementById('search-box');
+const suggestionsBox = document.getElementById('suggestions');
+
+searchBox.addEventListener('input', async function() {
+    const query = this.value;
+    if (query.length < 2) {
+        suggestionsBox.classList.add('hidden');
+        return;
+    }
+
+    const response = await fetch(`{% url 'playdates:suggest' %}?query=${encodeURIComponent(query)}`);
+    const data = await response.json();
+    
+    if (data.length > 0) {
+        suggestionsBox.innerHTML = data.map(item => 
+            `<div class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick="selectSuggestion('${item.text}')">${item.text} <span class="text-gray-400 text-sm">${item.type}</span></div>`
+        ).join('');
+        suggestionsBox.classList.remove('hidden');
+    } else {
+        suggestionsBox.classList.add('hidden');
+    }
+});
+
+function selectSuggestion(text) {
+    searchBox.value = text;
+    suggestionsBox.classList.add('hidden');
+}
+
+document.addEventListener('click', (e) => {
+    if (!searchBox.contains(e.target)) {
+        suggestionsBox.classList.add('hidden');
+    }
+});
+</script>
+{% endblock %}
+

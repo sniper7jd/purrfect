@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PetConnect{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#c54a0d',
+                        'brand-light': '#ff6b2b',
+                        'brand-dark': '#9a3a0a',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Grand+Hotel&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .logo-font { font-family: 'Grand Hotel', cursive; }
+        
+        /* Custom scrollbar */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Story ring gradient */
+        .story-ring {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            padding: 3px;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <!-- Logo -->
+            <a href="{% url 'feed:home' %}" class="flex items-center gap-2">
+                <span class="text-2xl logo-font text-brand">PetConnect</span>
+            </a>
+            
+            <!-- Navigation -->
+            <nav class="hidden md:flex items-center gap-6">
+                {% if user.is_authenticated %}
+                <a href="{% url 'feed:home' %}" class="text-gray-600 hover:text-brand transition-colors font-medium">Feed</a>
+                <a href="{% url 'chat:inbox' %}" class="text-gray-600 hover:text-brand transition-colors font-medium">Messages</a>
+                <a href="{% url 'playdates:discover' %}" class="text-gray-600 hover:text-brand transition-colors font-medium">Find Playdates</a>
+                <a href="{% url 'accounts:profile' username=user.username %}" class="text-gray-600 hover:text-brand transition-colors font-medium">Profile</a>
+                {% endif %}
+            </nav>
+            
+            <!-- Auth buttons -->
+            <div class="flex items-center gap-3">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'feed:create_post' %}" class="bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors font-medium">
+                        + Post
+                    </a>
+                    <a href="{% url 'accounts:logout' %}" class="text-gray-600 hover:text-brand transition-colors">Logout</a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="text-gray-600 hover:text-brand transition-colors font-medium">Log In</a>
+                    <a href="{% url 'accounts:register' %}" class="bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors font-medium">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Mobile nav (only shown when logged in) -->
+        {% if user.is_authenticated %}
+        <nav class="md:hidden border-t border-gray-200 flex justify-around py-2">
+            <a href="{% url 'feed:home' %}" class="p-2 text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+            </a>
+            <a href="{% url 'playdates:discover' %}" class="p-2 text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </a>
+            <a href="{% url 'feed:create_post' %}" class="p-2 text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </a>
+            <a href="{% url 'chat:inbox' %}" class="p-2 text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+            </a>
+            <a href="{% url 'accounts:profile' username=user.username %}" class="p-2 text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </a>
+        </nav>
+        {% endif %}
+    </header>
+    
+    <!-- Flash messages -->
+    {% if messages %}
+    <div class="max-w-6xl mx-auto px-4 pt-4">
+        {% for message in messages %}
+        <div class="mb-2 p-4 rounded-lg animate-fadeIn {% if message.tags == 'error' %}bg-red-100 text-red-800{% elif message.tags == 'success' %}bg-green-100 text-green-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Main content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-100 border-t mt-12 py-8">
+        <div class="max-w-6xl mx-auto px-4 text-center text-gray-500 text-sm">
+            <p>&copy; 2025 PetConnect. All rights reserved.</p>
+            <p class="mt-1">Find your pet's next best friend. 🐾</p>
+        </div>
+    </footer>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

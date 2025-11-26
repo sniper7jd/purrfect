@@ -1,0 +1,29 @@
+# Django core
+Django>=4.2,<5.0
+psycopg2-binary>=2.9.9
+python-dotenv>=1.0.0
+
+# Django Channels for WebSockets
+channels>=4.0.0
+daphne>=4.0.0
+# channels-redis>=4.1.0  # Uncomment for production with Redis
+
+# Authentication
+PyJWT>=2.8.0
+
+# Forms and templates
+django-crispy-forms>=2.1
+crispy-tailwind>=0.5.0
+
+# Static files
+whitenoise>=6.6.0
+
+# Image handling
+Pillow>=10.1.0
+
+# OpenAI integration (optional)
+openai>=1.3.0
+
+# Production server
+gunicorn>=21.2.0
+

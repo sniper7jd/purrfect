@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Smart Match - PetConnect{% endblock %}
+
+{% block content %}
+<main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900">Smart Playdate Matching</h1>
+        <p class="mt-2 text-lg text-gray-600">Find compatible playmates for your pet based on personality and preferences 🐾</p>
+    </div>
+    
+    {% if no_pets %}
+    <div class="text-center py-12 bg-white rounded-2xl shadow-sm border border-gray-100">
+        <div class="text-6xl mb-4">🐕</div>
+        <h3 class="text-xl font-semibold mb-2">Add a Pet First</h3>
+        <p class="text-gray-500 mb-4">You need to add a pet to use smart matching.</p>
+        <a href="{% url 'pets:add' %}" class="bg-brand text-white px-6 py-3 rounded-lg hover:bg-brand-dark transition-colors inline-block">
+            Add Your Pet
+        </a>
+    </div>
+    {% else %}
+    
+    <!-- Select Pet -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+        <h3 class="font-semibold mb-4">Matching for:</h3>
+        <div class="flex gap-4 flex-wrap">
+            {% for pet in user_pets %}
+            <a href="?pet_id={{ pet.id }}" class="{% if pet.id == selected_pet.id %}ring-2 ring-brand{% endif %} rounded-xl p-4 border border-gray-200 hover:border-brand transition-colors">
+                <div class="flex items-center gap-3">
+                    {% if pet.picture %}
+                    <img src="{{ pet.picture.url }}" alt="{{ pet.name }}" class="w-12 h-12 rounded-full object-cover">
+                    {% else %}
+                    <div class="w-12 h-12 rounded-full bg-brand flex items-center justify-center text-white font-bold">
+                        {{ pet.name|slice:":1" }}
+                    </div>
+                    {% endif %}
+                    <div>
+                        <p class="font-semibold">{{ pet.name }}</p>
+                        <p class="text-sm text-gray-500">{{ pet.breed|default:pet.species }}</p>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Selected Pet Info -->
+    <div class="bg-orange-50 rounded-2xl p-6 mb-8">
+        <h3 class="font-semibold mb-2">Finding matches for {{ selected_pet.name }}:</h3>
+        <div class="flex flex-wrap gap-3 text-sm">
+            <span class="bg-white px-3 py-1 rounded-full">{{ selected_pet.species }}</span>
+            <span class="bg-white px-3 py-1 rounded-full">{{ selected_pet.get_energy_level_display }} Energy</span>
+            {% if selected_pet.temperament %}
+            <span class="bg-white px-3 py-1 rounded-full">{{ selected_pet.get_temperament_display }}</span>
+            {% endif %}
+            {% for item in selected_pet.good_with_list %}
+            <span class="bg-white px-3 py-1 rounded-full text-green-600">✓ {{ item }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Compatible Pets -->
+    <h2 class="text-2xl font-bold mb-6">Compatible Playmates</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for pet in compatible_pets %}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-lg transition-shadow">
+            <a href="{% url 'pets:profile' pet_id=pet.id %}">
+                {% if pet.picture %}
+                <img src="{{ pet.picture.url }}" alt="{{ pet.name }}" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
+                {% else %}
+                <div class="h-64 w-full bg-brand flex items-center justify-center text-white text-6xl font-bold">
+                    {{ pet.name|slice:":1" }}
+                </div>
+                {% endif %}
+            </a>
+            <div class="p-6 flex-grow flex flex-col">
+                <h3 class="text-2xl font-bold text-gray-900">{{ pet.name }}</h3>
+                <p class="text-md text-brand font-medium">{{ pet.breed|default:pet.species }}</p>
+                <div class="mt-2 text-gray-600 space-y-1 text-sm">
+                    <p><strong>Age:</strong> {{ pet.age_display }}</p>
+                    <p><strong>Energy:</strong> {{ pet.get_energy_level_display }}</p>
+                    {% if pet.temperament %}
+                    <p><strong>Temperament:</strong> {{ pet.get_temperament_display }}</p>
+                    {% endif %}
+                </div>
+                <a href="{% url 'pets:profile' pet_id=pet.id %}" class="mt-auto pt-4 w-full text-center font-semibold text-brand border-2 border-brand px-4 py-2 rounded-full hover:bg-brand hover:text-white transition-colors duration-300">View Profile</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <div class="text-6xl mb-4">😿</div>
+            <h3 class="text-xl font-semibold mb-2">No matches found</h3>
+            <p class="text-gray-500">Try checking out all available pets instead.</p>
+            <a href="{% url 'playdates:discover' %}" class="mt-4 inline-block bg-brand text-white px-6 py-3 rounded-lg hover:bg-brand-dark transition-colors">
+                Browse All Pets
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</main>
+{% endblock %}
+

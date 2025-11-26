@@ -18,7 +18,6 @@ staticfiles/
 .venv
 venv/
 ENV/
-petconnect/venv/
 
 # IDE
 .idea/
@@ -36,5 +35,3 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Migrations (keep __init__.py)
-# !**/migrations/__init__.py

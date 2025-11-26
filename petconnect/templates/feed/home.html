@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Feed - PetConnect{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 py-6">
+    
+    <!-- Stories Section -->
+    {% if stories_by_pet %}
+    <section class="bg-white border border-gray-200 rounded-xl p-4 mb-6 overflow-hidden">
+        <div class="flex gap-4 overflow-x-auto scrollbar-hide">
+            <!-- Add story button -->
+            {% if user_pets %}
+            <div class="flex-shrink-0 text-center">
+                <a href="{% url 'feed:create_story' %}" class="block">
+                    <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-dashed border-gray-300 hover:border-brand transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                </a>
+                <span class="text-xs mt-1 block text-gray-600">Your Story</span>
+            </div>
+            {% endif %}
+            
+            <!-- Pet stories -->
+            {% for story_data in stories_by_pet %}
+            <div class="flex-shrink-0 text-center">
+                <a href="{% url 'feed:view_story' story_id=story_data.stories.0.id %}">
+                    <div class="{% if story_data.has_unseen %}story-ring{% else %}p-0.5{% endif %} rounded-full">
+                        <div class="w-16 h-16 rounded-full overflow-hidden bg-white p-0.5">
+                            {% if story_data.pet.picture %}
+                            <img src="{{ story_data.pet.picture.url }}" alt="{{ story_data.pet.name }}" class="w-full h-full object-cover rounded-full">
+                            {% else %}
+                            <div class="w-full h-full rounded-full bg-brand flex items-center justify-center text-white font-bold">
+                                {{ story_data.pet.name|slice:":1" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                <span class="text-xs mt-1 block text-gray-600 truncate w-16">{{ story_data.pet.name }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    <!-- Posts Feed -->
+    <section class="space-y-6">
+        {% for post in posts %}
+        <article class="bg-white border border-gray-200 rounded-xl overflow-hidden animate-fadeIn">
+            <!-- Post header -->
+            <div class="flex items-center gap-3 p-4">
+                <a href="{% url 'pets:profile' pet_id=post.pet.id %}" class="flex-shrink-0">
+                    {% if post.pet.picture %}
+                    <img src="{{ post.pet.picture.url }}" alt="{{ post.pet.name }}" class="w-10 h-10 rounded-full object-cover">
+                    {% else %}
+                    <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-bold">
+                        {{ post.pet.name|slice:":1" }}
+                    </div>
+                    {% endif %}
+                </a>
+                <div class="flex-1">
+                    <a href="{% url 'pets:profile' pet_id=post.pet.id %}" class="font-semibold hover:underline">{{ post.pet.name }}</a>
+                    <p class="text-xs text-gray-500">{{ post.pet.location|default:"" }}</p>
+                </div>
+            </div>
+            
+            <!-- Post image -->
+            <a href="{% url 'feed:post_detail' post_id=post.id %}">
+                <img src="{{ post.image.url }}" alt="Post by {{ post.pet.name }}" class="w-full aspect-square object-cover">
+            </a>
+            
+            <!-- Post actions -->
+            <div class="p-4">
+                <div class="flex items-center gap-4 mb-3">
+                    <button class="like-btn hover:scale-110 transition-transform" data-post-id="{{ post.id }}">
+                        {% if post.id in user_liked_posts %}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+                        </svg>
+                        {% else %}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        {% endif %}
+                    </button>
+                    <a href="{% url 'feed:post_detail' post_id=post.id %}" class="hover:scale-110 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </a>
+                    <button class="hover:scale-110 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Likes count -->
+                <p class="font-semibold text-sm mb-2 like-count" data-post-id="{{ post.id }}">{{ post.like_count|default:0 }} likes</p>
+                
+                <!-- Caption -->
+                {% if post.caption %}
+                <p class="text-sm">
+                    <a href="{% url 'pets:profile' pet_id=post.pet.id %}" class="font-semibold hover:underline">{{ post.pet.name }}</a>
+                    {{ post.caption }}
+                </p>
+                {% endif %}
+                
+                <!-- View comments -->
+                {% if post.comment_count > 0 %}
+                <a href="{% url 'feed:post_detail' post_id=post.id %}" class="text-gray-500 text-sm mt-2 block">
+                    View all {{ post.comment_count }} comments
+                </a>
+                {% endif %}
+                
+                <!-- Time -->
+                <p class="text-gray-400 text-xs mt-2 uppercase">{{ post.created_at|timesince }} ago</p>
+            </div>
+        </article>
+        {% empty %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">🐾</div>
+            <h3 class="text-xl font-semibold mb-2">No posts yet</h3>
+            <p class="text-gray-500 mb-4">Follow some pets or add your own to see posts here!</p>
+            <a href="{% url 'playdates:discover' %}" class="bg-brand text-white px-6 py-3 rounded-lg hover:bg-brand-dark transition-colors inline-block">
+                Discover Pets
+            </a>
+        </div>
+        {% endfor %}
+    </section>
+</div>
+
+<script>
+// Like functionality
+document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', async function() {
+        const postId = this.dataset.postId;
+        const response = await fetch(`/post/${postId}/like/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const icon = this.querySelector('svg');
+            const countEl = document.querySelector(`.like-count[data-post-id="${postId}"]`);
+            
+            if (data.liked) {
+                icon.setAttribute('fill', 'currentColor');
+                icon.classList.add('text-red-500');
+            } else {
+                icon.setAttribute('fill', 'none');
+                icon.classList.remove('text-red-500');
+            }
+            
+            countEl.textContent = `${data.like_count} likes`;
+        }
+    });
+});
+</script>
+{% endblock %}
+

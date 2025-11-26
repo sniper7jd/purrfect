@@ -1,3 +1,0 @@
-FLASK_APP=purrfect.py
-FLASK_DEBUG=1
-

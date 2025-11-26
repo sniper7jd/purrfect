@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PetConnect - Social Network for Pets{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-orange-50 via-white to-orange-100 py-20">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h1 class="text-5xl md:text-6xl font-bold text-gray-900 leading-tight">
+                    Where Pets
+                    <span class="text-brand">Connect</span>
+                </h1>
+                <p class="mt-6 text-xl text-gray-600">
+                    Share your pet's adventures, find the perfect playmate, and join a community of pet lovers.
+                </p>
+                <div class="mt-8">
+                    <a href="{% url 'accounts:register' %}" class="bg-brand text-white px-8 py-4 rounded-xl font-semibold hover:bg-brand-dark transition-colors text-lg inline-block">
+                        Get Started Free
+                    </a>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-4">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400" alt="Happy dog" class="rounded-2xl shadow-lg w-full h-48 object-cover">
+                        <img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400" alt="Cute cat" class="rounded-2xl shadow-lg w-full h-64 object-cover">
+                    </div>
+                    <div class="space-y-4 pt-8">
+                        <img src="https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=400" alt="Orange cat" class="rounded-2xl shadow-lg w-full h-64 object-cover">
+                        <img src="https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=400" alt="Golden retriever" class="rounded-2xl shadow-lg w-full h-48 object-cover">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-20">
+    <div class="max-w-6xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">Everything Your Pet Needs</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+                <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">Share Moments</h3>
+                <p class="text-gray-600">Post photos and stories of your pet's daily adventures. Build a following and connect with pet lovers.</p>
+            </div>
+            
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+                <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">Find Playdates</h3>
+                <p class="text-gray-600">Our smart matching finds compatible pets nearby. Filter by temperament, energy level, and more.</p>
+            </div>
+            
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
+                <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-3">Real-time Chat</h3>
+                <p class="text-gray-600">Message other pet owners instantly. Arrange meetups and share tips with our secure messaging.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="text-4xl font-bold mb-6">Ready to Join the Pack?</h2>
+        <p class="text-xl text-gray-600 mb-8">Create a profile for your pet and start connecting with other pet lovers today!</p>
+        <a href="{% url 'accounts:register' %}" class="bg-brand text-white px-10 py-4 rounded-xl font-semibold hover:bg-brand-dark transition-colors text-lg inline-block">
+            Sign Up Free
+        </a>
+    </div>
+</section>
+{% endblock %}
+
