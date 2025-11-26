@@ -178,10 +178,16 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-    SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host != 'localhost' and host != '127.0.0.1']
+    # Trust Render's proxy for HTTPS
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # Don't redirect - Render handles HTTPS at load balancer
+    SECURE_SSL_REDIRECT = False
+    CSRF_TRUSTED_ORIGINS = [
+        "https://petconnect-2gip.onrender.com",
+        "https://*.onrender.com",
+    ]
 
 # WhiteNoise for static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
