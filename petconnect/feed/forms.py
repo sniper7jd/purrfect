@@ -51,3 +51,5 @@ class StoryForm(forms.ModelForm):
             }),
         }
 
+
+

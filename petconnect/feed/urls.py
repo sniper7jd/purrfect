@@ -15,3 +15,5 @@ urlpatterns = [
     path('story/<int:story_id>/', views.view_story, name='view_story'),
 ]
 
+
+

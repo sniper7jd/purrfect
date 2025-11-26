@@ -80,3 +80,5 @@ def edit_profile_view(request):
     
     return render(request, 'accounts/edit_profile.html', {'form': form})
 
+
+

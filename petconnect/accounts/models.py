@@ -45,3 +45,5 @@ class User(AbstractUser):
         """Total followers across all pets."""
         return sum(pet.follower_count for pet in self.pets.all())
 
+
+

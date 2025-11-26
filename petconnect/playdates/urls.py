@@ -11,3 +11,5 @@ urlpatterns = [
     path('map/', views.map_view, name='map'),
 ]
 
+
+

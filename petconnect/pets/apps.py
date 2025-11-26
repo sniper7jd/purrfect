@@ -6,3 +6,5 @@ class PetsConfig(AppConfig):
     name = 'pets'
     verbose_name = 'Pet Profiles'
 
+
+

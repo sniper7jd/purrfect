@@ -162,3 +162,5 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Database seeded successfully!'))
         self.stdout.write('Sample login: alexchen / password123')
 
+
+

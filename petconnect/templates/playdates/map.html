@@ -1,15 +1,49 @@
 {% extends 'base.html' %}
 
-{% block title %}Map View - PetConnect{% endblock %}
+{% block title %}{% if focus_pet %}{{ focus_pet.name }} on Map{% else %}Map View{% endif %} - PetConnect{% endblock %}
 
 {% block content %}
 <div class="h-[calc(100vh-120px)] relative">
     <div id="map" class="w-full h-full"></div>
     
     <div class="absolute top-4 left-4 bg-white rounded-xl shadow-lg p-4 max-w-xs">
+        {% if focus_pet %}
+        <div class="flex items-center gap-3 mb-3">
+            {% if focus_pet.picture %}
+            <img src="{{ focus_pet.picture.url }}" alt="{{ focus_pet.name }}" class="w-12 h-12 rounded-full object-cover">
+            {% else %}
+            <div class="w-12 h-12 rounded-full bg-brand flex items-center justify-center text-white font-bold">
+                {{ focus_pet.name|slice:":1" }}
+            </div>
+            {% endif %}
+            <div>
+                <h2 class="font-bold text-lg">{{ focus_pet.name }}</h2>
+                <p class="text-sm text-gray-500">{{ focus_pet.breed|default:focus_pet.species }}</p>
+            </div>
+        </div>
+        <p class="text-sm text-gray-600 mb-3">{{ focus_pet.location }}</p>
+        <a href="{% url 'pets:profile' pet_id=focus_pet.id %}" class="block w-full text-center bg-brand text-white py-2 rounded-lg font-semibold hover:opacity-90 mb-2">
+            View Profile
+        </a>
+        {% else %}
         <h2 class="font-bold text-lg mb-2">Pets Near You</h2>
         <p class="text-sm text-gray-500 mb-4">{{ pets|length }} pets available for playdates</p>
+        {% endif %}
         <a href="{% url 'playdates:discover' %}" class="text-brand text-sm font-semibold hover:underline">← Back to list</a>
+    </div>
+    
+    <!-- Map Controls -->
+    <div class="absolute top-4 right-4 flex flex-col gap-2">
+        <button id="locate-me-btn" class="bg-white p-3 rounded-xl shadow-lg hover:bg-gray-50 transition-colors" title="Find my location">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="3"></circle>
+                <line x1="12" y1="2" x2="12" y2="4"></line>
+                <line x1="12" y1="20" x2="12" y2="22"></line>
+                <line x1="2" y1="12" x2="4" y2="12"></line>
+                <line x1="20" y1="12" x2="22" y2="12"></line>
+            </svg>
+        </button>
     </div>
 </div>
 
@@ -18,24 +52,45 @@
 const pets = {{ pets|safe }};
 const avgLat = {{ avg_lat }};
 const avgLng = {{ avg_lng }};
+const zoomLevel = {{ zoom_level|default:12 }};
+{% if focus_pet %}const focusPetId = {{ focus_pet.id }};{% else %}const focusPetId = null;{% endif %}
+
+let map;
+let userMarker = null;
 
 function initMap() {
-    const map = new google.maps.Map(document.getElementById('map'), {
+    map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: avgLat, lng: avgLng },
-        zoom: 12,
+        zoom: zoomLevel,
         styles: [
             { featureType: "poi", stylers: [{ visibility: "off" }] }
-        ]
+        ],
+        zoomControl: true,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true,
     });
     
     const infoWindow = new google.maps.InfoWindow();
     
     pets.forEach(pet => {
+        // Use different icon for focus pet
+        const isFocus = focusPetId && pet.id === focusPetId;
+        
         const marker = new google.maps.Marker({
             position: { lat: pet.latitude, lng: pet.longitude },
             map: map,
             title: pet.name,
+            animation: isFocus ? google.maps.Animation.BOUNCE : null,
+            icon: isFocus ? {
+                url: 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png'
+            } : null
         });
+        
+        // Stop bouncing after 2 seconds
+        if (isFocus) {
+            setTimeout(() => marker.setAnimation(null), 2000);
+        }
         
         marker.addListener('click', () => {
             const content = `
@@ -43,16 +98,67 @@ function initMap() {
                     ${pet.image_url ? `<img src="${pet.image_url}" class="w-full h-32 object-cover rounded-lg mb-2">` : ''}
                     <h3 class="font-bold text-lg">${pet.name}</h3>
                     <p class="text-gray-500">${pet.breed || pet.species}</p>
-                    <a href="${pet.profile_url}" class="inline-block mt-2 text-sm text-brand font-semibold hover:underline">View Profile →</a>
+                    <a href="${pet.profile_url}" class="inline-block mt-2 text-sm font-semibold hover:underline" style="color: #FF6B35;">View Profile →</a>
                 </div>
             `;
             infoWindow.setContent(content);
             infoWindow.open(map, marker);
         });
+        
+        // Auto-open info window for focus pet
+        if (isFocus) {
+            const content = `
+                <div class="p-2 min-w-[200px]">
+                    ${pet.image_url ? `<img src="${pet.image_url}" class="w-full h-32 object-cover rounded-lg mb-2">` : ''}
+                    <h3 class="font-bold text-lg">${pet.name}</h3>
+                    <p class="text-gray-500">${pet.breed || pet.species}</p>
+                    <a href="${pet.profile_url}" class="inline-block mt-2 text-sm font-semibold hover:underline" style="color: #FF6B35;">View Profile →</a>
+                </div>
+            `;
+            infoWindow.setContent(content);
+            infoWindow.open(map, marker);
+        }
+    });
+    
+    // Locate me button
+    document.getElementById('locate-me-btn')?.addEventListener('click', function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const userLoc = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    map.setCenter(userLoc);
+                    map.setZoom(14);
+                    
+                    if (userMarker) {
+                        userMarker.setMap(null);
+                    }
+                    
+                    userMarker = new google.maps.Marker({
+                        position: userLoc,
+                        map: map,
+                        title: 'Your Location',
+                        icon: {
+                            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                        }
+                    });
+                },
+                function() {
+                    alert('Unable to get your location');
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser');
+        }
     });
 }
 
 initMap();
 </script>
 {% endblock %}
+
+
 

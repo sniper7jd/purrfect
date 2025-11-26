@@ -34,3 +34,5 @@ class StoryViewAdmin(admin.ModelAdmin):
     list_display = ['user', 'story', 'viewed_at']
     raw_id_fields = ['user', 'story']
 
+
+

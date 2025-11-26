@@ -149,3 +149,5 @@ def all_reviews(request, pet_id):
     
     return render(request, 'pets/all_reviews.html', {'pet': pet, 'reviews': reviews})
 
+
+

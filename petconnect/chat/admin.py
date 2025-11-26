@@ -15,3 +15,5 @@ class MessageAdmin(admin.ModelAdmin):
     list_filter = ['sent_at']
     raw_id_fields = ['sender', 'conversation']
 
+
+

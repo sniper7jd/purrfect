@@ -134,3 +134,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
             read_at__isnull=True
         ).exclude(sender=self.user).update(read_at=timezone.now())
 
+
+
