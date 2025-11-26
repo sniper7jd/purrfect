@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile - PetConnect{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <h1 class="text-3xl font-bold mb-8">Edit Profile</h1>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Current Photo -->
+            <div class="flex items-center gap-6">
+                {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="w-20 h-20 rounded-full object-cover">
+                {% else %}
+                <div class="w-20 h-20 rounded-full bg-brand flex items-center justify-center text-white text-2xl font-bold">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                {% endif %}
+                <div>
+                    <p class="font-semibold">{{ user.username }}</p>
+                    <label class="text-brand text-sm cursor-pointer hover:underline">
+                        Change profile photo
+                        <input type="file" name="profile_picture" class="hidden" accept="image/*">
+                    </label>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                {{ form.name }}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                {{ form.bio }}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                {{ form.location }}
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                {{ form.phone_number }}
+                <p class="text-xs text-gray-500 mt-1">For verification and contact purposes</p>
+            </div>
+            
+            <div class="flex gap-4 pt-4">
+                <button type="submit" class="flex-1 bg-brand text-white py-3 rounded-xl font-semibold hover:bg-brand-dark transition-colors">
+                    Save Changes
+                </button>
+                <a href="{% url 'accounts:profile' username=user.username %}" class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

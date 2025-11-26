@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Map View - PetConnect{% endblock %}
+
+{% block content %}
+<div class="h-[calc(100vh-120px)] relative">
+    <div id="map" class="w-full h-full"></div>
+    
+    <div class="absolute top-4 left-4 bg-white rounded-xl shadow-lg p-4 max-w-xs">
+        <h2 class="font-bold text-lg mb-2">Pets Near You</h2>
+        <p class="text-sm text-gray-500 mb-4">{{ pets|length }} pets available for playdates</p>
+        <a href="{% url 'playdates:discover' %}" class="text-brand text-sm font-semibold hover:underline">← Back to list</a>
+    </div>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{ PLACES_API_KEY }}"></script>
+<script>
+const pets = {{ pets|safe }};
+const avgLat = {{ avg_lat }};
+const avgLng = {{ avg_lng }};
+
+function initMap() {
+    const map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: avgLat, lng: avgLng },
+        zoom: 12,
+        styles: [
+            { featureType: "poi", stylers: [{ visibility: "off" }] }
+        ]
+    });
+    
+    const infoWindow = new google.maps.InfoWindow();
+    
+    pets.forEach(pet => {
+        const marker = new google.maps.Marker({
+            position: { lat: pet.latitude, lng: pet.longitude },
+            map: map,
+            title: pet.name,
+        });
+        
+        marker.addListener('click', () => {
+            const content = `
+                <div class="p-2 min-w-[200px]">
+                    ${pet.image_url ? `<img src="${pet.image_url}" class="w-full h-32 object-cover rounded-lg mb-2">` : ''}
+                    <h3 class="font-bold text-lg">${pet.name}</h3>
+                    <p class="text-gray-500">${pet.breed || pet.species}</p>
+                    <a href="${pet.profile_url}" class="inline-block mt-2 text-sm text-brand font-semibold hover:underline">View Profile →</a>
+                </div>
+            `;
+            infoWindow.setContent(content);
+            infoWindow.open(map, marker);
+        });
+    });
+}
+
+initMap();
+</script>
+{% endblock %}
+

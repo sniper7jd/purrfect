@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In - PetConnect{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-12">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold logo-font text-brand">PetConnect</h1>
+            <p class="text-gray-500 mt-2">Log in to see photos and updates from pets you follow</p>
+        </div>
+        
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 text-red-600 p-3 rounded-lg text-sm">
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+            
+            <div>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                {{ form.password }}
+                {% if form.password.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.password.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="w-full bg-brand text-white py-3 rounded-lg font-semibold hover:bg-brand-dark transition-colors">
+                Log In
+            </button>
+        </form>
+        
+        <div class="mt-6 text-center">
+            <a href="#" class="text-sm text-brand hover:underline">Forgot password?</a>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-4 text-center">
+        <p class="text-gray-600">
+            Don't have an account? 
+            <a href="{% url 'accounts:register' %}" class="text-brand font-semibold hover:underline">Sign up</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+

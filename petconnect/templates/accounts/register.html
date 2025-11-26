@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - PetConnect{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-12">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold logo-font text-brand">PetConnect</h1>
+            <p class="text-gray-500 mt-2">Sign up to share your pet's adventures</p>
+        </div>
+        
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.username.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                {{ form.email }}
+                {% if form.email.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.password1.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ form.password2.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="w-full bg-brand text-white py-3 rounded-lg font-semibold hover:bg-brand-dark transition-colors">
+                Sign Up
+            </button>
+        </form>
+        
+        <p class="text-xs text-gray-400 text-center mt-4">
+            By signing up, you agree to our Terms of Service and Privacy Policy.
+        </p>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mt-4 text-center">
+        <p class="text-gray-600">
+            Have an account? 
+            <a href="{% url 'accounts:login' %}" class="text-brand font-semibold hover:underline">Log in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
+
