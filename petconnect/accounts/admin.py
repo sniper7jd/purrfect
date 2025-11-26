@@ -14,3 +14,5 @@ class UserAdmin(BaseUserAdmin):
         ('Verification', {'fields': ('email_verified', 'phone_verified', 'id_verified', 'response_rate')}),
     )
 
+
+

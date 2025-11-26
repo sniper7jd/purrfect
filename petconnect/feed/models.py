@@ -92,3 +92,5 @@ class StoryView(models.Model):
         db_table = 'story_views'
         unique_together = ['user', 'story']
 
+
+

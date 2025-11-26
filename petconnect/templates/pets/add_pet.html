@@ -6,9 +6,22 @@
 <div class="max-w-2xl mx-auto px-4 py-8">
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <h1 class="text-3xl font-bold mb-2">Add Your Pet</h1>
-        <p class="text-gray-500 mb-8">Tell us about your furry (or scaly, or feathery) friend!</p>
+        <p class="text-gray-500 mb-8">Tell us about your furry (or scaly, or feathery) friend! Fields marked with * are required.</p>
         
-        <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% if form.errors %}
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
+            <p class="font-semibold mb-2">Please correct the following errors:</p>
+            <ul class="list-disc list-inside text-sm">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ field|title }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6" id="pet-form">
             {% csrf_token %}
             
             <!-- Basic Info -->
@@ -17,15 +30,15 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Pet Name *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Pet Name <span class="text-red-500">*</span></label>
                         {{ form.name }}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Species *</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Species <span class="text-red-500">*</span></label>
                         {{ form.species }}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Breed</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Breed <span class="text-red-500">*</span></label>
                         {{ form.breed }}
                     </div>
                     <div>
@@ -35,8 +48,9 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Bio <span class="text-red-500">*</span></label>
                     {{ form.bio }}
+                    <p class="text-xs text-gray-500 mt-1">Describe your pet's personality, favorite activities, and what makes them special!</p>
                 </div>
             </div>
             
@@ -46,7 +60,7 @@
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Age (Years)</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Age (Years) <span class="text-red-500">*</span></label>
                         {{ form.age_years }}
                     </div>
                     <div>
@@ -58,7 +72,7 @@
                         {{ form.weight_lbs }}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Gender <span class="text-red-500">*</span></label>
                         {{ form.gender }}
                     </div>
                 </div>
@@ -70,37 +84,37 @@
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Energy Level</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Energy Level <span class="text-red-500">*</span></label>
                         {{ form.energy_level }}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Temperament</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Temperament <span class="text-red-500">*</span></label>
                         {{ form.temperament }}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Training Level</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Training Level <span class="text-red-500">*</span></label>
                         {{ form.training_level }}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Social Preference</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Social Preference <span class="text-red-500">*</span></label>
                         {{ form.social_preference }}
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
                         {{ form.good_with_dogs }}
                         <span class="text-sm">Good with Dogs</span>
                     </label>
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
                         {{ form.good_with_cats }}
                         <span class="text-sm">Good with Cats</span>
                     </label>
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
                         {{ form.good_with_kids }}
                         <span class="text-sm">Good with Kids</span>
                     </label>
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
                         {{ form.good_with_strangers }}
                         <span class="text-sm">Good with Strangers</span>
                     </label>
@@ -112,11 +126,11 @@
                 <h3 class="font-semibold text-lg border-b pb-2">Health & Verification</h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
                         {{ form.vaccinations_current }}
                         <span class="text-sm">Vaccinations Up-to-Date</span>
                     </label>
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
                         {{ form.microchipped }}
                         <span class="text-sm">Microchipped</span>
                     </label>
@@ -128,21 +142,41 @@
                 <h3 class="font-semibold text-lg border-b pb-2">Location & Availability</h3>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                    {{ form.location }}
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Location <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        {{ form.location }}
+                        <button type="button" id="detect-location-btn" 
+                                class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 px-3 py-1.5 bg-brand/10 text-brand text-sm font-medium rounded-lg hover:bg-brand/20 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <line x1="12" y1="2" x2="12" y2="4"></line>
+                                <line x1="12" y1="20" x2="12" y2="22"></line>
+                                <line x1="2" y1="12" x2="4" y2="12"></line>
+                                <line x1="20" y1="12" x2="22" y2="12"></line>
+                            </svg>
+                            <span id="detect-btn-text">Auto-detect</span>
+                        </button>
+                    </div>
                     <input type="hidden" name="latitude" id="latitude">
                     <input type="hidden" name="longitude" id="longitude">
                     <input type="hidden" name="place_id" id="place_id">
+                    <p class="text-xs text-gray-500 mt-1">Start typing to search or click "Auto-detect" to use your current location</p>
+                </div>
+                
+                <!-- Mini Map Preview -->
+                <div id="location-preview" class="hidden">
+                    <div id="mini-map" class="w-full h-48 rounded-xl bg-gray-100"></div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 p-3 bg-green-50 rounded-lg hover:bg-green-100 cursor-pointer border border-green-200">
                         {{ form.available_for_playdate }}
-                        <span class="text-sm">Available for Playdates</span>
+                        <span class="text-sm font-medium text-green-800">Available for Playdates</span>
                     </label>
-                    <label class="flex items-center gap-2">
+                    <label class="flex items-center gap-2 p-3 bg-blue-50 rounded-lg hover:bg-blue-100 cursor-pointer border border-blue-200">
                         {{ form.available_for_sitting }}
-                        <span class="text-sm">Available for Pet Sitting</span>
+                        <span class="text-sm font-medium text-blue-800">Available for Pet Sitting</span>
                     </label>
                 </div>
             </div>
@@ -157,24 +191,154 @@
     </div>
 </div>
 
-{% if PLACES_API_KEY %}
 <script src="https://maps.googleapis.com/maps/api/js?key={{ PLACES_API_KEY }}&libraries=places"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const input = document.getElementById('location-input');
+    const detectBtn = document.getElementById('detect-location-btn');
+    const detectBtnText = document.getElementById('detect-btn-text');
+    const locationPreview = document.getElementById('location-preview');
+    const miniMapDiv = document.getElementById('mini-map');
+    let map = null;
+    let marker = null;
+    
+    // Initialize Google Places Autocomplete
     if (input && typeof google !== 'undefined') {
-        const autocomplete = new google.maps.places.Autocomplete(input);
+        const autocomplete = new google.maps.places.Autocomplete(input, {
+            types: ['(cities)']
+        });
+        
         autocomplete.addListener('place_changed', function() {
             const place = autocomplete.getPlace();
             if (place.geometry) {
-                document.getElementById('latitude').value = place.geometry.location.lat();
-                document.getElementById('longitude').value = place.geometry.location.lng();
-                document.getElementById('place_id').value = place.place_id;
+                const lat = place.geometry.location.lat();
+                const lng = place.geometry.location.lng();
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+                document.getElementById('place_id').value = place.place_id || '';
+                
+                // Show map preview
+                showMapPreview(lat, lng, place.formatted_address || input.value);
             }
         });
     }
+    
+    // Auto-detect location button
+    detectBtn?.addEventListener('click', function() {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+        
+        detectBtnText.textContent = 'Detecting...';
+        detectBtn.disabled = true;
+        
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+                
+                // Reverse geocode to get address
+                if (typeof google !== 'undefined') {
+                    const geocoder = new google.maps.Geocoder();
+                    geocoder.geocode({ location: { lat, lng } }, function(results, status) {
+                        if (status === 'OK' && results[0]) {
+                            // Find city, state from address components
+                            let city = '', state = '', country = '';
+                            for (const component of results[0].address_components) {
+                                if (component.types.includes('locality')) {
+                                    city = component.long_name;
+                                }
+                                if (component.types.includes('administrative_area_level_1')) {
+                                    state = component.short_name;
+                                }
+                                if (component.types.includes('country')) {
+                                    country = component.short_name;
+                                }
+                            }
+                            
+                            const locationText = city && state ? `${city}, ${state}` : results[0].formatted_address;
+                            input.value = locationText;
+                            document.getElementById('place_id').value = results[0].place_id || '';
+                            
+                            // Show map preview
+                            showMapPreview(lat, lng, locationText);
+                        }
+                        detectBtnText.textContent = 'Auto-detect';
+                        detectBtn.disabled = false;
+                    });
+                } else {
+                    input.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                    detectBtnText.textContent = 'Auto-detect';
+                    detectBtn.disabled = false;
+                }
+            },
+            function(error) {
+                let message = 'Unable to detect location.';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        message = 'Location access denied. Please allow location access in your browser settings.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        message = 'Location information unavailable.';
+                        break;
+                    case error.TIMEOUT:
+                        message = 'Location request timed out.';
+                        break;
+                }
+                alert(message);
+                detectBtnText.textContent = 'Auto-detect';
+                detectBtn.disabled = false;
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            }
+        );
+    });
+    
+    // Show map preview
+    function showMapPreview(lat, lng, title) {
+        locationPreview.classList.remove('hidden');
+        
+        if (!map) {
+            map = new google.maps.Map(miniMapDiv, {
+                zoom: 12,
+                center: { lat, lng },
+                disableDefaultUI: true,
+                zoomControl: true,
+                styles: [
+                    { featureType: "poi", stylers: [{ visibility: "off" }] }
+                ]
+            });
+        } else {
+            map.setCenter({ lat, lng });
+        }
+        
+        if (marker) {
+            marker.setMap(null);
+        }
+        
+        marker = new google.maps.Marker({
+            position: { lat, lng },
+            map: map,
+            title: title,
+            animation: google.maps.Animation.DROP
+        });
+    }
+    
+    // Prompt for location access on page load
+    setTimeout(function() {
+        if (navigator.geolocation && !input.value) {
+            if (confirm('Would you like to auto-detect your location for your pet\'s profile?')) {
+                detectBtn.click();
+            }
+        }
+    }, 1000);
 });
 </script>
-{% endif %}
 {% endblock %}
-

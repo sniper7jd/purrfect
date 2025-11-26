@@ -174,7 +174,22 @@ def smart_match(request):
 
 
 def map_view(request):
-    """View pets on a map."""
+    """View pets on a map. Optionally center on a specific pet."""
+    # Check if a specific pet is requested
+    focus_pet_id = request.GET.get('pet')
+    focus_pet = None
+    
+    if focus_pet_id:
+        try:
+            focus_pet = Pet.objects.get(
+                pk=focus_pet_id,
+                is_active=True,
+                latitude__isnull=False,
+                longitude__isnull=False
+            )
+        except Pet.DoesNotExist:
+            pass
+    
     pets = Pet.objects.filter(
         is_active=True,
         available_for_playdate=True,
@@ -182,11 +197,18 @@ def map_view(request):
         longitude__isnull=False
     )
     
-    if pets.exists():
+    # Determine center point
+    if focus_pet:
+        avg_lat = focus_pet.latitude
+        avg_lng = focus_pet.longitude
+        zoom_level = 14  # Closer zoom when focusing on specific pet
+    elif pets.exists():
         avg_lat = sum(p.latitude for p in pets) / len(pets)
         avg_lng = sum(p.longitude for p in pets) / len(pets)
+        zoom_level = 12
     else:
         avg_lat, avg_lng = 42.4534, -76.4735  # Default to Ithaca, NY
+        zoom_level = 10
     
     pet_data = [{
         'id': pet.id,
@@ -197,11 +219,16 @@ def map_view(request):
         'longitude': pet.longitude,
         'image_url': pet.picture.url if pet.picture else None,
         'profile_url': pet.get_absolute_url(),
+        'is_focus': focus_pet and pet.id == focus_pet.id,
     } for pet in pets]
     
     return render(request, 'playdates/map.html', {
         'pets': pet_data,
         'avg_lat': avg_lat,
         'avg_lng': avg_lng,
+        'zoom_level': zoom_level,
+        'focus_pet': focus_pet,
     })
+
+
 

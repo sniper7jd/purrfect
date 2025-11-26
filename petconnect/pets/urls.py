@@ -15,3 +15,5 @@ urlpatterns = [
     path('<int:pet_id>/reviews/', views.all_reviews, name='all_reviews'),
 ]
 
+
+

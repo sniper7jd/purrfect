@@ -85,19 +85,34 @@ CHANNEL_LAYERS = {
     }
 }
 
-# Database - PostgreSQL (default)
-# On macOS with Homebrew, the default user is your system username
+# Database - PostgreSQL
+# Supports DATABASE_URL (used by Render, Heroku, etc.) or individual settings
 import getpass
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'petconnect'),
-        'USER': os.environ.get('DB_USER', getpass.getuser()),
-        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+import dj_database_url
+
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    # Production: Use DATABASE_URL from Render
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    # Local development
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'petconnect'),
+            'USER': os.environ.get('DB_USER', getpass.getuser()),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
+    }
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
@@ -153,10 +168,24 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 POSTS_PER_PAGE = 10
 PETS_PER_PAGE = 12
 
-# Create directories
-(BASE_DIR / 'logs').mkdir(exist_ok=True)
-(BASE_DIR / 'media' / 'posts').mkdir(parents=True, exist_ok=True)
-(BASE_DIR / 'media' / 'stories').mkdir(parents=True, exist_ok=True)
-(BASE_DIR / 'media' / 'pets').mkdir(parents=True, exist_ok=True)
-(BASE_DIR / 'media' / 'profiles').mkdir(parents=True, exist_ok=True)
+# Production Security Settings
+if not DEBUG:
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host != 'localhost' and host != '127.0.0.1']
+
+# WhiteNoise for static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Create directories (only in development)
+if DEBUG:
+    (BASE_DIR / 'logs').mkdir(exist_ok=True)
+    (BASE_DIR / 'media' / 'posts').mkdir(parents=True, exist_ok=True)
+    (BASE_DIR / 'media' / 'stories').mkdir(parents=True, exist_ok=True)
+    (BASE_DIR / 'media' / 'pets').mkdir(parents=True, exist_ok=True)
+    (BASE_DIR / 'media' / 'profiles').mkdir(parents=True, exist_ok=True)
 

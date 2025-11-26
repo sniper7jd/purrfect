@@ -23,3 +23,5 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter = ['rating', 'review_type']
     raw_id_fields = ['pet', 'reviewer']
 
+
+

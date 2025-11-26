@@ -9,3 +9,5 @@ def global_settings(request):
         'DEBUG': settings.DEBUG,
     }
 
+
+

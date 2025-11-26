@@ -12,3 +12,5 @@ urlpatterns = [
     path('<int:conversation_id>/send/', views.send_message, name='send_message'),
 ]
 
+
+

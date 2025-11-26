@@ -6,3 +6,5 @@ class FeedConfig(AppConfig):
     name = 'feed'
     verbose_name = 'Pet Feed'
 
+
+

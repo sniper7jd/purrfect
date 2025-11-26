@@ -50,3 +50,5 @@ class Message(models.Model):
             self.read_at = timezone.now()
             self.save(update_fields=['read_at'])
 
+
+

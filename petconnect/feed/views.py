@@ -231,3 +231,5 @@ def delete_post(request, post_id):
     messages.success(request, 'Post deleted.')
     return redirect('feed:home')
 
+
+
