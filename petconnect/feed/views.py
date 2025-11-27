@@ -1,7 +1,6 @@
 """Feed views."""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils import timezone
@@ -84,7 +83,6 @@ def create_post(request):
         pet_id = request.POST.get('pet_id')
         
         if not pet_id:
-            messages.error(request, 'Please select a pet to post as.')
             return redirect('feed:create_post')
         
         pet = get_object_or_404(Pet, pk=pet_id, owner=request.user)
@@ -93,14 +91,12 @@ def create_post(request):
             post = form.save(commit=False)
             post.pet = pet
             post.save()
-            messages.success(request, 'Post created successfully!')
             return redirect('feed:home')
     else:
         form = PostForm()
     
     user_pets = request.user.pets.all()
     if not user_pets:
-        messages.info(request, 'Add a pet first to start posting!')
         return redirect('pets:add')
     
     return render(request, 'feed/create_post.html', {
@@ -176,7 +172,6 @@ def create_story(request):
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': True})
             
-            messages.success(request, 'Story posted!')
             return redirect('feed:home')
     
     return redirect('feed:home')
@@ -228,7 +223,6 @@ def delete_post(request, post_id):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'success': True})
     
-    messages.success(request, 'Post deleted.')
     return redirect('feed:home')
 
 
