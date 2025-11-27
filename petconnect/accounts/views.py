@@ -2,7 +2,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.contrib.auth import get_user_model
 
 from .forms import LoginForm, RegisterForm, ProfileEditForm
@@ -40,7 +39,6 @@ def register_view(request):
             user.name = form.cleaned_data.get('name')
             user.save()
             login(request, user)
-            messages.success(request, 'Welcome to PetConnect! Add your first pet to get started.')
             return redirect('pets:add')
     else:
         form = RegisterForm()
@@ -73,7 +71,6 @@ def edit_profile_view(request):
         form = ProfileEditForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Profile updated successfully!')
             return redirect('accounts:profile', username=request.user.username)
     else:
         form = ProfileEditForm(instance=request.user)

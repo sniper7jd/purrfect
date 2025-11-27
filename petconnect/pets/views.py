@@ -1,7 +1,6 @@
 """Pet views."""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
@@ -22,7 +21,6 @@ def add_pet(request):
             pet.longitude = request.POST.get('longitude') or None
             pet.place_id = request.POST.get('place_id', '')
             pet.save()
-            messages.success(request, f'{pet.name} has been added to your profile!')
             return redirect('pets:profile', pet_id=pet.id)
     else:
         form = PetForm()
@@ -43,7 +41,6 @@ def edit_pet(request, pet_id):
             pet.longitude = request.POST.get('longitude') or pet.longitude
             pet.place_id = request.POST.get('place_id') or pet.place_id
             pet.save()
-            messages.success(request, f'{pet.name} has been updated!')
             return redirect('pets:profile', pet_id=pet.id)
     else:
         form = PetForm(instance=pet)
@@ -57,9 +54,7 @@ def delete_pet(request, pet_id):
     pet = get_object_or_404(Pet, pk=pet_id, owner=request.user)
     
     if request.method == 'POST':
-        name = pet.name
         pet.delete()
-        messages.success(request, f'{name} has been removed from your profile.')
         return redirect('accounts:profile', username=request.user.username)
     
     return render(request, 'pets/delete_pet.html', {'pet': pet})
@@ -124,7 +119,6 @@ def add_review(request, pet_id):
     pet = get_object_or_404(Pet, pk=pet_id)
     
     if pet.owner == request.user:
-        messages.error(request, "You can't review your own pet.")
         return redirect('pets:profile', pet_id=pet_id)
     
     if request.method == 'POST':
@@ -134,7 +128,6 @@ def add_review(request, pet_id):
             review.pet = pet
             review.reviewer = request.user
             review.save()
-            messages.success(request, 'Your review has been added!')
             return redirect('pets:profile', pet_id=pet_id)
     else:
         form = ReviewForm()

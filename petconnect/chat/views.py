@@ -1,10 +1,10 @@
 """Chat views."""
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages as django_messages
 from django.http import JsonResponse
 from django.db.models import Q, Max
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from .models import Conversation, Message
 
@@ -46,7 +46,7 @@ def conversation(request, conversation_id):
     
     # Mark messages as read
     conv.messages.filter(read_at__isnull=True).exclude(sender=request.user).update(
-        read_at=__import__('django.utils.timezone', fromlist=['timezone']).timezone.now()
+        read_at=timezone.now()
     )
     
     return render(request, 'chat/conversation.html', {
@@ -62,7 +62,6 @@ def start_conversation(request, user_id):
     other_user = get_object_or_404(User, pk=user_id)
     
     if other_user == request.user:
-        django_messages.error(request, "You can't message yourself.")
         return redirect('chat:inbox')
     
     # Check if conversation already exists
