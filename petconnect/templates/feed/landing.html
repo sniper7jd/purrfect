@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static media_tags %}
 
 {% block title %}PetConnect - Social Network for Pets{% endblock %}
 
@@ -16,21 +16,25 @@
                 <p class="mt-6 text-xl text-gray-600">
                     Share your pet's adventures, find the perfect playmate, and join a community of pet lovers.
                 </p>
-                <div class="mt-8">
+                <div class="mt-8 flex flex-wrap gap-4">
                     <a href="{% url 'accounts:register' %}" class="bg-brand text-white px-8 py-4 rounded-xl font-semibold hover:bg-brand-dark transition-colors text-lg inline-block">
                         Get Started Free
                     </a>
+                    {% if DEMO_LOGIN_ENABLED %}
+                    {% include "accounts/_demo_login_button.html" with button_class="border-2 border-brand text-brand px-8 py-4 rounded-xl font-semibold hover:bg-brand hover:text-white transition-colors text-lg" %}
+                    {% endif %}
                 </div>
+                <p class="mt-4 text-sm text-gray-500">No sign-up needed for the demo: explore the feed, smart matching, the map, and live chat.</p>
             </div>
             <div class="relative">
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-4">
-                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400" alt="Happy dog" class="rounded-2xl shadow-lg w-full h-48 object-cover">
-                        <img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400" alt="Cute cat" class="rounded-2xl shadow-lg w-full h-64 object-cover">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400" decoding="async" alt="Happy dog" class="rounded-2xl shadow-lg w-full h-48 object-cover">
+                        <img src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?w=400" decoding="async" alt="Cute cat" class="rounded-2xl shadow-lg w-full h-64 object-cover">
                     </div>
                     <div class="space-y-4 pt-8">
-                        <img src="https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=400" alt="Orange cat" class="rounded-2xl shadow-lg w-full h-64 object-cover">
-                        <img src="https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=400" alt="Golden retriever" class="rounded-2xl shadow-lg w-full h-48 object-cover">
+                        <img src="https://images.unsplash.com/photo-1596854407944-bf87f6fdd49e?w=400" decoding="async" alt="Orange cat" class="rounded-2xl shadow-lg w-full h-64 object-cover">
+                        <img src="https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?w=400" decoding="async" alt="Golden retriever" class="rounded-2xl shadow-lg w-full h-48 object-cover">
                     </div>
                 </div>
             </div>
@@ -75,6 +79,30 @@
         </div>
     </div>
 </section>
+
+{% if featured_pets %}
+<section class="py-12 bg-white border-y border-gray-100">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="flex items-end justify-between mb-8">
+            <h2 class="text-3xl font-bold">Popular Pets</h2>
+            <a href="{% url 'playdates:discover' %}" class="text-brand font-semibold hover:underline">Browse all &rarr;</a>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+            {% for pet in featured_pets %}
+            <a href="{% url 'pets:profile' pet_id=pet.id %}" class="group text-center">
+                {% if pet.picture %}
+                <img src="{{ pet.picture|resized:320 }}" alt="{{ pet.name }}" class="w-full aspect-square object-cover rounded-2xl group-hover:opacity-90 transition-opacity" loading="lazy">
+                {% else %}
+                <div class="w-full aspect-square rounded-2xl bg-brand flex items-center justify-center text-white text-4xl font-bold">{{ pet.name|slice:":1" }}</div>
+                {% endif %}
+                <p class="mt-2 font-semibold">{{ pet.name }}</p>
+                <p class="text-xs text-gray-500">{{ pet.breed|default:pet.species }}</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
 
 <!-- CTA Section -->
 <section class="py-20">

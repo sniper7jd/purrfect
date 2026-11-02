@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load media_tags %}
+
+{% block title %}{{ story.pet.name }}'s Story - PetConnect{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-6">
+    <div class="relative bg-black rounded-2xl overflow-hidden aspect-[9/16]">
+        <div class="absolute top-0 inset-x-0 flex gap-1 p-2 z-10">
+            {% for s in pet_stories %}
+            <div class="h-1 flex-1 rounded-full {% if s.id == story.id %}bg-white{% elif s.created_at < story.created_at %}bg-white/80{% else %}bg-white/30{% endif %}"></div>
+            {% endfor %}
+        </div>
+        <a href="{% url 'pets:profile' pet_id=story.pet.id %}" class="absolute top-4 left-3 z-10 flex items-center gap-2 text-white">
+            {% if story.pet.picture %}
+            <img src="{{ story.pet.picture|resized:64 }}" alt="{{ story.pet.name }}" class="w-8 h-8 rounded-full object-cover border border-white">
+            {% endif %}
+            <span class="font-semibold text-sm drop-shadow">{{ story.pet.name }}</span>
+            <span class="text-xs opacity-80">{{ story.created_at|timesince }} ago</span>
+        </a>
+        <img src="{{ story.image.url }}" alt="Story by {{ story.pet.name }}" class="w-full h-full object-contain">
+
+        {% if next_story %}
+        <a href="{% url 'feed:view_story' story_id=next_story.id %}" class="absolute inset-y-0 right-0 w-1/2" aria-label="Next story"></a>
+        {% else %}
+        <a href="{% url 'feed:home' %}" class="absolute inset-y-0 right-0 w-1/2" aria-label="Back to feed"></a>
+        {% endif %}
+    </div>
+    <div class="text-center mt-4">
+        <a href="{% url 'feed:home' %}" class="text-sm text-gray-500 hover:text-brand">Close</a>
+    </div>
+</div>
+{% endblock %}

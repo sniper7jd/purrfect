@@ -1,0 +1,47 @@
+{% load media_tags %}
+<article class="bg-white border border-gray-200 rounded-xl overflow-hidden animate-fadeIn">
+    <div class="flex items-center gap-3 p-4">
+        <a href="{% url 'pets:profile' pet_id=post.pet.id %}" class="flex-shrink-0">
+            {% if post.pet.picture %}
+            <img src="{{ post.pet.picture|resized:96 }}" alt="{{ post.pet.name }}" class="w-10 h-10 rounded-full object-cover" loading="lazy" decoding="async">
+            {% else %}
+            <div class="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-bold">{{ post.pet.name|slice:":1" }}</div>
+            {% endif %}
+        </a>
+        <div class="flex-1">
+            <a href="{% url 'pets:profile' pet_id=post.pet.id %}" class="font-semibold hover:underline">{{ post.pet.name }}</a>
+            <p class="text-xs text-gray-500">{{ post.pet.location|default:"" }}</p>
+        </div>
+    </div>
+
+    <a href="{% url 'feed:post_detail' post_id=post.id %}">
+        <img src="{{ post.image.url }}" alt="Post by {{ post.pet.name }}" class="w-full aspect-square object-cover bg-gray-100" loading="lazy" decoding="async">
+    </a>
+
+    <div class="p-4">
+        <div class="flex items-center gap-5 mb-3">
+            {% include "feed/_like_button.html" %}
+            <a href="{% url 'feed:post_detail' post_id=post.id %}" class="flex items-center gap-1.5 hover:scale-105 transition-transform" aria-label="Comments">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                <span class="text-sm font-semibold">{{ post.comment_total }}</span>
+            </a>
+            <button type="button" x-data="shareLink('{% url 'feed:post_detail' post_id=post.id %}')" @click="share()" class="ml-auto flex items-center gap-1 text-sm text-gray-500 hover:text-brand" aria-label="Share">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" /></svg>
+                <span x-show="copied" x-cloak>Link copied</span>
+            </button>
+        </div>
+
+        {% if post.caption %}
+        <p class="text-sm">
+            <a href="{% url 'pets:profile' pet_id=post.pet.id %}" class="font-semibold hover:underline">{{ post.pet.name }}</a>
+            {{ post.caption }}
+        </p>
+        {% endif %}
+
+        {% if post.comment_total %}
+        <a href="{% url 'feed:post_detail' post_id=post.id %}" class="text-gray-500 text-sm mt-2 block">View all {{ post.comment_total }} comment{{ post.comment_total|pluralize }}</a>
+        {% endif %}
+
+        <p class="text-gray-400 text-xs mt-2 uppercase">{{ post.created_at|timesince }} ago</p>
+    </div>
+</article>
