@@ -91,7 +91,7 @@
     previewElement.classList.remove("hidden");
     if (!map) {
       map = PetMaps.createMap(previewElement, { lat, lng, zoom: 13 });
-      marker = L.marker([lat, lng]).addTo(map);
+      marker = L.marker([lat, lng], { icon: PetMaps.pinIcon(), keyboard: false }).addTo(map);
     } else {
       map.setView([lat, lng], 13);
       marker.setLatLng([lat, lng]);

@@ -51,6 +51,11 @@ def test_seed_data_is_idempotent(settings):
     assert all(pet.picture for pet in Pet.objects.all())
 
 
+def test_referrer_policy_lets_openstreetmap_see_our_origin(client):
+    response = client.get(reverse("playdates:map"))
+    assert response["Referrer-Policy"] == "strict-origin-when-cross-origin"
+
+
 def test_service_worker_and_offline_page(client):
     response = client.get("/sw.js")
     assert response.status_code == 200

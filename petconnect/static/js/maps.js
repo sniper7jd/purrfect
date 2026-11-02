@@ -38,6 +38,17 @@ window.PetMaps = (() => {
     });
   }
 
+  // Leaflet's default marker images can't be located once static files are hashed,
+  // so the location picker uses a CSS pin instead.
+  function pinIcon() {
+    return L.divIcon({
+      html: '<span class="location-pin"></span>',
+      className: "",
+      iconSize: [32, 32],
+      iconAnchor: [16, 39],
+    });
+  }
+
   function petPopup(pet) {
     const wrapper = document.createElement("div");
     wrapper.className = "min-w-[180px]";
@@ -77,5 +88,5 @@ window.PetMaps = (() => {
 
   document.addEventListener("DOMContentLoaded", initMiniMaps);
 
-  return { createMap, petIcon, petPopup };
+  return { createMap, petIcon, pinIcon, petPopup };
 })();

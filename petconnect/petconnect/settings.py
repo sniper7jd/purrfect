@@ -32,6 +32,10 @@ if not SECRET_KEY:
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", "localhost,127.0.0.1")
 CSRF_TRUSTED_ORIGINS = env_list("CSRF_TRUSTED_ORIGINS")
 
+# OpenStreetMap's tile and Nominatim usage policies require a Referer; Django's default
+# ("same-origin") sends none on cross-origin requests, which can get map tiles blocked.
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

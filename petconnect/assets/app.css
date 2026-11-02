@@ -54,6 +54,16 @@
     @apply h-14 w-14 ring-4 ring-brand/40;
   }
 
+  .location-pin {
+    @apply block h-8 w-8 rounded-full rounded-br-none border-[3px] border-white bg-brand shadow-lg;
+    transform: rotate(45deg);
+  }
+
+  .location-pin::after {
+    @apply absolute top-1/2 left-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white;
+    content: "";
+  }
+
   .htmx-indicator {
     opacity: 0;
     transition: opacity 200ms ease-in;
