@@ -64,7 +64,7 @@ PETS = [
         "latitude": 42.4254,
         "longitude": -76.4945,
         "bio": "Professional stick-chaser, certified good boy, and expert-level cuddler. Will trade high-fives for treats.",
-        "caption": "Found the perfect stick. It's mine now. #goldenretriever #parkday",
+        "caption": "Golden hour, golden boy. Who wants to play fetch? #goldenretriever #parkday",
     },
     {
         "owner": "alexchen",
