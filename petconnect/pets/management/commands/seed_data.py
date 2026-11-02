@@ -51,6 +51,7 @@ PETS = [
         "species": "Dog",
         "breed": "Golden Retriever",
         "image": "golden-retriever.jpg",
+        "post_image": "golden-retriever-flower.jpg",
         "age_years": 4,
         "weight_lbs": 75,
         "gender": "male_neutered",
@@ -64,7 +65,7 @@ PETS = [
         "latitude": 42.4254,
         "longitude": -76.4945,
         "bio": "Professional stick-chaser, certified good boy, and expert-level cuddler. Will trade high-fives for treats.",
-        "caption": "Golden hour, golden boy. Who wants to play fetch? #goldenretriever #parkday",
+        "caption": "Picked you a flower. Playdate at the park? #goldenretriever #parkday",
     },
     {
         "owner": "alexchen",
@@ -344,6 +345,7 @@ class Command(BaseCommand):
             owner = users[data.pop("owner")]
             image = data.pop("image")
             data.pop("caption")
+            data.pop("post_image", None)
             pet, created = Pet.objects.get_or_create(owner=owner, name=data["name"], defaults=data)
             if not pet.picture:
                 with (IMAGES_DIR / image).open("rb") as handle:
@@ -362,8 +364,9 @@ class Command(BaseCommand):
             post = Post(
                 pet=pet, caption=data["caption"], created_at=now - timedelta(hours=3 * index + 1)
             )
-            with (IMAGES_DIR / data["image"]).open("rb") as handle:
-                post.image.save(data["image"], File(handle), save=True)
+            image = data.get("post_image", data["image"])
+            with (IMAGES_DIR / image).open("rb") as handle:
+                post.image.save(image, File(handle), save=True)
             for username in list(users)[index % 3 : index % 3 + 2]:
                 PostLike.objects.get_or_create(user=users[username], post=post)
             if index % 2 == 0:
