@@ -1,12 +1,15 @@
-# Fallback host. Primary deployment is Koyeb (see README). Render's free Postgres expires
-# after 30 days, so the database lives on Neon and uploads on Cloudinary either way.
+# Render Blueprint: New > Blueprint > select this repo.
+# The database (Neon) and uploads (Cloudinary) live outside Render, so they persist
+# across deploys and never expire.
 services:
   - type: web
     name: petconnect
     runtime: docker
     plan: free
+    region: ohio
     dockerfilePath: ./Dockerfile
     healthCheckPath: /healthz/
+    autoDeploy: true
     envVars:
       - key: SECRET_KEY
         generateValue: true

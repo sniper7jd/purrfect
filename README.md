@@ -103,31 +103,33 @@ uv run ruff check . && uv run ruff format --check .
 
 ## Deploy for free
 
-Every service below has a free tier that doesn't expire. The database and uploads persist across deploys.
+Every service below has a free tier that doesn't expire. The database and uploads live outside the web host, so they persist across deploys and restarts.
 
 | Piece | Service | Setting |
 |---|---|---|
-| Web app | [Koyeb](https://www.koyeb.com) (free instance, Dockerfile builder) | listens on port `8000`, health check `/healthz/` |
+| Web app | [Render](https://render.com) free web service (Docker) | health check `/healthz/`, region Ohio (next to Neon `us-east-2`) |
 | Database | [Neon](https://neon.tech) | `DATABASE_URL` (use the direct, non-pooled connection string) |
 | Images | [Cloudinary](https://cloudinary.com) | `CLOUDINARY_URL` |
 | Real-time | [Ably](https://ably.com) | `ABLY_API_KEY` (a key with publish and subscribe) |
+| Keep-awake (optional) | [UptimeRobot](https://uptimerobot.com) | HTTP monitor on `/healthz/` every 5 minutes |
 
 1. Create the Neon database, the Cloudinary account, and the Ably app, then copy their connection strings or keys.
-2. On Koyeb, create a **Web Service** from this GitHub repo. Choose the **Dockerfile** builder, a **Free** instance, port **8000**, and health check path **/healthz/**.
-3. Set these environment variables:
+2. On Render, choose **New**, then **Blueprint**, and select this repo. [render.yaml](render.yaml) creates a free Docker web service and generates `SECRET_KEY`. You can also create a **Web Service** by hand with the **Docker** runtime and the same settings.
+3. Fill in the environment variables Render asks for:
 
    ```
-   SECRET_KEY=<long random string>
    DATABASE_URL=<Neon connection string>
-   CLOUDINARY_URL=<Cloudinary URL>
+   CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
    ABLY_API_KEY=<Ably key>
-   ALLOWED_HOSTS=<your-app>.koyeb.app
-   CSRF_TRUSTED_ORIGINS=https://<your-app>.koyeb.app
    ```
 
-4. Deploy. On start, the container runs migrations, seeds the demo data (idempotent), and starts gunicorn. You can turn those steps off with `RUN_MIGRATIONS=0` or `SEED_DEMO_DATA=0`.
+   `ALLOWED_HOSTS=.onrender.com` and `CSRF_TRUSTED_ORIGINS=https://*.onrender.com` are already set in the blueprint.
 
-[render.yaml](render.yaml) is kept as a fallback blueprint for Render's free Docker web service, using the same environment variables.
+4. Deploy. On start, the container runs migrations, seeds the demo data (idempotent), and starts gunicorn on Render's `$PORT`. You can turn those steps off with `RUN_MIGRATIONS=0` or `SEED_DEMO_DATA=0`.
+
+Render's free services sleep after 15 minutes without traffic and take about 30 to 50 seconds to wake. One service running around the clock fits inside Render's 750 free instance-hours per month, so an UptimeRobot ping on `/healthz/` keeps the demo instant. That endpoint doesn't touch the database, so Neon can still scale to zero.
+
+The same image runs anywhere that runs containers, such as Google Cloud Run or Fly.io. Set the same environment variables.
 
 ## Project evolution
 
