@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static media_tags %}
 
 {% block title %}Find Playdates - PetConnect{% endblock %}
 
 {% block content %}
-<main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+<div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
     <div class="text-center mb-8">
         <h1 class="text-4xl sm:text-5xl font-bold text-gray-900">Find Your Pet's Next Best Friend</h1>
         <p class="mt-2 text-lg text-gray-600">Search for pets in your area ready for a playdate! 🐾</p>
@@ -15,20 +15,25 @@
         <form method="GET" action="{% url 'playdates:discover' %}">
             <!-- Search Bar -->
             <div class="flex flex-col sm:flex-row gap-4 mb-6">
-                <div class="relative flex-grow">
+                <div class="relative flex-grow" x-data="searchSuggest('{% url 'playdates:suggest' %}', '{{ request.GET.search|default:''|escapejs }}')" @click.outside="open = false">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
-                    <input type="text" name="search" id="search-box" 
-                           class="block w-full rounded-xl border-gray-300 py-3 pl-12 text-md shadow-sm focus:border-brand focus:ring-brand" 
-                           placeholder="Search for dogs, cats, breeds..." 
-                           value="{{ request.GET.search|default:'' }}"
-                           autocomplete="off">
-                    <div id="suggestions" class="absolute z-10 w-full mt-1 bg-white rounded-md shadow-lg hidden"></div>
+                    <input type="search" name="search" x-model="query" @input.debounce.250ms="fetchSuggestions" @keydown.escape="open = false"
+                           class="block w-full rounded-xl border border-gray-300 py-3 pl-12 pr-4 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none"
+                           placeholder="Search for dogs, cats, breeds..." autocomplete="off" aria-label="Search pets">
+                    <ul x-show="open" x-cloak class="absolute z-10 w-full mt-1 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden" role="listbox">
+                        <template x-for="item in items" :key="item.type + item.text">
+                            <li>
+                                <button type="button" @click="choose(item)" class="w-full text-left px-4 py-2 hover:bg-orange-50 flex justify-between">
+                                    <span x-text="item.text"></span>
+                                    <span class="text-gray-400 text-sm" x-text="item.type"></span>
+                                </button>
+                            </li>
+                        </template>
+                    </ul>
                 </div>
-            
+
                 <a href="{% url 'playdates:map' %}" class="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border-2 border-brand px-6 py-3 font-semibold text-brand transition-colors duration-300 hover:bg-brand hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -40,19 +45,19 @@
 
             <!-- Basic Filters -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <select name="sort" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm">
+                <select name="sort" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none sm:text-sm">
                     <option value="">Sort By</option>
                     <option value="alpha_asc" {% if request.GET.sort == 'alpha_asc' %}selected{% endif %}>Name: A-Z</option>
                     <option value="alpha_desc" {% if request.GET.sort == 'alpha_desc' %}selected{% endif %}>Name: Z-A</option>
                     <option value="popular" {% if request.GET.sort == 'popular' %}selected{% endif %}>Most Popular</option>
                 </select>
-                <select name="species" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm">
+                <select name="species" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none sm:text-sm">
                     <option value="">All Species</option>
                     {% for sp in species_choices %}
                     <option value="{{ sp }}" {% if request.GET.species == sp %}selected{% endif %}>{{ sp }}</option>
                     {% endfor %}
                 </select>
-                <select name="age" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm">
+                <select name="age" class="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none sm:text-sm">
                     <option value="">Any Age</option>
                     <option value="0-2" {% if request.GET.age == '0-2' %}selected{% endif %}>Puppy / Kitten (0-2 yrs)</option>
                     <option value="3-5" {% if request.GET.age == '3-5' %}selected{% endif %}>Adult (3-5 yrs)</option>
@@ -71,26 +76,26 @@
                     <h3 class="text-md font-semibold text-gray-800">Smart Matching</h3>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <select name="temperament" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 focus:border-brand focus:ring-brand">
+                    <select name="temperament" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 px-3 py-2 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none">
                         <option value="">Any Temperament</option>
                         <option value="calm" {% if request.GET.temperament == 'calm' %}selected{% endif %}>Calm & Gentle</option>
                         <option value="playful" {% if request.GET.temperament == 'playful' %}selected{% endif %}>Playful & Energetic</option>
                         <option value="shy" {% if request.GET.temperament == 'shy' %}selected{% endif %}>Shy & Cautious</option>
                         <option value="independent" {% if request.GET.temperament == 'independent' %}selected{% endif %}>Independent</option>
                     </select>
-                    <select name="energy" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 focus:border-brand focus:ring-brand">
+                    <select name="energy" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 px-3 py-2 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none">
                         <option value="">Any Energy Level</option>
                         <option value="low" {% if request.GET.energy == 'low' %}selected{% endif %}>Low</option>
                         <option value="medium" {% if request.GET.energy == 'medium' %}selected{% endif %}>Medium</option>
                         <option value="high" {% if request.GET.energy == 'high' %}selected{% endif %}>High</option>
                     </select>
-                    <select name="training" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 focus:border-brand focus:ring-brand">
+                    <select name="training" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 px-3 py-2 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none">
                         <option value="">Any Training Level</option>
                         <option value="basic" {% if request.GET.training == 'basic' %}selected{% endif %}>Basic Commands</option>
                         <option value="advanced" {% if request.GET.training == 'advanced' %}selected{% endif %}>Advanced Training</option>
                         <option value="in_training" {% if request.GET.training == 'in_training' %}selected{% endif %}>In Training</option>
                     </select>
-                    <select name="social" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 focus:border-brand focus:ring-brand">
+                    <select name="social" class="block w-full rounded-lg shadow-sm sm:text-sm bg-white border border-orange-200 px-3 py-2 focus:border-brand focus:ring-2 focus:ring-brand/20 outline-none">
                         <option value="">Social Preference</option>
                         <option value="groups" {% if request.GET.social == 'groups' %}selected{% endif %}>Good in Groups</option>
                         <option value="one_on_one" {% if request.GET.social == 'one_on_one' %}selected{% endif %}>Prefers One-on-One</option>
@@ -112,7 +117,7 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-lg transition-shadow">
             <a href="{% url 'pets:profile' pet_id=pet.id %}">
                 {% if pet.picture %}
-                <img src="{{ pet.picture.url }}" alt="{{ pet.name }}" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
+                <img src="{{ pet.picture|resized:640 }}" alt="{{ pet.name }}" loading="lazy" decoding="async" class="h-64 w-full object-cover group-hover:opacity-90 transition-opacity">
                 {% else %}
                 <div class="h-64 w-full bg-brand flex items-center justify-center text-white text-6xl font-bold">
                     {{ pet.name|slice:":1" }}
@@ -175,45 +180,6 @@
         </ul>
     </nav>
     {% endif %}
-</main>
+</div>
 
-<script>
-// Search autocomplete
-const searchBox = document.getElementById('search-box');
-const suggestionsBox = document.getElementById('suggestions');
-
-searchBox.addEventListener('input', async function() {
-    const query = this.value;
-    if (query.length < 2) {
-        suggestionsBox.classList.add('hidden');
-        return;
-    }
-
-    const response = await fetch(`{% url 'playdates:suggest' %}?query=${encodeURIComponent(query)}`);
-    const data = await response.json();
-    
-    if (data.length > 0) {
-        suggestionsBox.innerHTML = data.map(item => 
-            `<div class="px-4 py-2 hover:bg-gray-100 cursor-pointer" onclick="selectSuggestion('${item.text}')">${item.text} <span class="text-gray-400 text-sm">${item.type}</span></div>`
-        ).join('');
-        suggestionsBox.classList.remove('hidden');
-    } else {
-        suggestionsBox.classList.add('hidden');
-    }
-});
-
-function selectSuggestion(text) {
-    searchBox.value = text;
-    suggestionsBox.classList.add('hidden');
-}
-
-document.addEventListener('click', (e) => {
-    if (!searchBox.contains(e.target)) {
-        suggestionsBox.classList.add('hidden');
-    }
-});
-</script>
 {% endblock %}
-
-
-

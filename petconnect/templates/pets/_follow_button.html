@@ -1,0 +1,10 @@
+{% if is_following %}{% url 'pets:unfollow' pet_id=pet.id as follow_url %}{% else %}{% url 'pets:follow' pet_id=pet.id as follow_url %}{% endif %}
+<form id="follow-form" method="post" action="{{ follow_url }}" hx-post="{{ follow_url }}" hx-target="this" hx-swap="outerHTML">
+    {% csrf_token %}
+    <button type="submit"
+            class="{% if is_following %}bg-gray-200 text-gray-800{% else %}bg-brand text-white{% endif %} px-6 py-2 rounded-xl font-semibold hover:opacity-90 transition"
+            aria-pressed="{{ is_following|yesno:'true,false' }}">
+        {% if is_following %}Following{% else %}Follow{% endif %}
+    </button>
+</form>
+{% if oob %}<strong id="follower-count" hx-swap-oob="true">{{ pet.followers_total }}</strong>{% endif %}
