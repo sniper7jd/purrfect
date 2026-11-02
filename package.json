@@ -1,0 +1,13 @@
+{
+  "name": "petconnect-assets",
+  "private": true,
+  "description": "Build tooling for PetConnect's compiled Tailwind CSS",
+  "scripts": {
+    "css:build": "tailwindcss -i petconnect/assets/app.css -o petconnect/static/css/app.css --minify",
+    "css:watch": "tailwindcss -i petconnect/assets/app.css -o petconnect/static/css/app.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
+  }
+}
