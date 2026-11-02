@@ -1,0 +1,14 @@
+{% load media_tags %}
+{% if comment %}
+<div class="flex gap-3 animate-fadeIn">
+    {% if comment.user.profile_picture %}
+    <img src="{{ comment.user.profile_picture|resized:64 }}" alt="{{ comment.user.username }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0" loading="lazy">
+    {% else %}
+    <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600 text-sm flex-shrink-0">{{ comment.user.username|slice:":1"|upper }}</div>
+    {% endif %}
+    <div>
+        <p><span class="font-semibold">{{ comment.user.username }}</span> {{ comment.content }}</p>
+        <p class="text-xs text-gray-400 mt-1">{{ comment.created_at|timesince }} ago</p>
+    </div>
+</div>
+{% endif %}

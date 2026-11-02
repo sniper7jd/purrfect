@@ -1,0 +1,50 @@
+[project]
+name = "petconnect"
+version = "2.1.0"
+description = "Social network and playdate matcher for pets: Django, HTMX, Ably, Leaflet/OpenStreetMap, PostgreSQL"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "django>=5.2,<5.3",
+    "dj-database-url>=2.3",
+    "psycopg[binary]>=3.2",
+    "python-dotenv>=1.0",
+    "whitenoise>=6.8",
+    "pillow>=11.0",
+    "gunicorn>=23.0",
+    "django-htmx>=1.21",
+    "pyjwt>=2.9",
+    "cloudinary>=1.41",
+    "sentry-sdk[django]>=2.18",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "ruff>=0.8",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "petconnect.settings_test"
+pythonpath = ["petconnect"]
+testpaths = ["petconnect/tests"]
+addopts = "-q"
+filterwarnings = ["ignore:No directory at:UserWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["petconnect"]
+extend-exclude = ["**/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ", "SIM"]
+ignore = ["E501", "DJ001"]
+
+[tool.ruff.lint.per-file-ignores]
+"petconnect/petconnect/settings_test.py" = ["F403", "F405"]

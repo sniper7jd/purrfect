@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load media_tags %}
+
+{% block title %}Reviews for {{ pet.name }} - PetConnect{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <a href="{% url 'pets:profile' pet_id=pet.id %}" class="text-sm text-brand hover:underline">&larr; Back to {{ pet.name }}</a>
+    <h1 class="text-3xl font-bold mt-2 mb-6">
+        Reviews for {{ pet.name }}
+        {% if review_stats.total %}<span class="text-gray-400 font-medium">· {{ review_stats.average|floatformat:1 }} / 5 ({{ review_stats.total }})</span>{% endif %}
+    </h1>
+
+    <div class="space-y-4">
+        {% for review in reviews %}
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-4">
+                {% if review.reviewer.profile_picture %}
+                <img src="{{ review.reviewer.profile_picture|resized:96 }}" class="w-12 h-12 rounded-full object-cover" alt="{{ review.reviewer.username }}" loading="lazy">
+                {% else %}
+                <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center font-bold text-gray-600">{{ review.reviewer.username|slice:":2"|upper }}</div>
+                {% endif %}
+                <div>
+                    <p class="font-semibold">{{ review.reviewer.name|default:review.reviewer.username }} <span class="text-gray-500 font-normal">({{ review.get_review_type_display }})</span></p>
+                    <p class="text-sm text-yellow-500" aria-label="{{ review.rating }} out of 5 stars">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}<span class="text-gray-300">★</span>{% endif %}{% endfor %}</p>
+                </div>
+                <span class="ml-auto text-xs text-gray-400">{{ review.created_at|date:"M j, Y" }}</span>
+            </div>
+            <p class="mt-4 text-gray-600 italic">"{{ review.content }}"</p>
+        </div>
+        {% empty %}
+        <p class="text-gray-500">No reviews yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

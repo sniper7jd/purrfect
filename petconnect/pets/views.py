@@ -1,146 +1,140 @@
 """Pet views."""
-from django.shortcuts import render, redirect, get_object_or_404
+
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.db.models import Avg, Count
+from django.http import HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from .models import Pet, Follow, Review
+from feed.models import Post
+from petconnect.db import count_related
+
 from .forms import PetForm, ReviewForm
+from .models import Follow, Pet
 
 
 @login_required
 def add_pet(request):
-    """Add a new pet."""
-    if request.method == 'POST':
+    if request.method == "POST":
         form = PetForm(request.POST, request.FILES)
         if form.is_valid():
             pet = form.save(commit=False)
             pet.owner = request.user
-            # Get location data from hidden fields
-            pet.latitude = request.POST.get('latitude') or None
-            pet.longitude = request.POST.get('longitude') or None
-            pet.place_id = request.POST.get('place_id', '')
             pet.save()
-            return redirect('pets:profile', pet_id=pet.id)
+            return redirect("pets:profile", pet_id=pet.id)
     else:
         form = PetForm()
-    
-    return render(request, 'pets/add_pet.html', {'form': form})
+
+    return render(request, "pets/pet_form.html", {"form": form})
 
 
 @login_required
 def edit_pet(request, pet_id):
-    """Edit a pet."""
     pet = get_object_or_404(Pet, pk=pet_id, owner=request.user)
-    
-    if request.method == 'POST':
+
+    if request.method == "POST":
         form = PetForm(request.POST, request.FILES, instance=pet)
         if form.is_valid():
-            pet = form.save(commit=False)
-            pet.latitude = request.POST.get('latitude') or pet.latitude
-            pet.longitude = request.POST.get('longitude') or pet.longitude
-            pet.place_id = request.POST.get('place_id') or pet.place_id
-            pet.save()
-            return redirect('pets:profile', pet_id=pet.id)
+            form.save()
+            return redirect("pets:profile", pet_id=pet.id)
     else:
         form = PetForm(instance=pet)
-    
-    return render(request, 'pets/edit_pet.html', {'form': form, 'pet': pet})
+
+    return render(request, "pets/pet_form.html", {"form": form, "pet": pet})
 
 
 @login_required
 def delete_pet(request, pet_id):
-    """Delete a pet."""
     pet = get_object_or_404(Pet, pk=pet_id, owner=request.user)
-    
-    if request.method == 'POST':
+
+    if request.method == "POST":
         pet.delete()
-        return redirect('accounts:profile', username=request.user.username)
-    
-    return render(request, 'pets/delete_pet.html', {'pet': pet})
+        return redirect("accounts:profile", username=request.user.username)
+
+    return render(request, "pets/delete_pet.html", {"pet": pet})
+
+
+def _pet_with_counts():
+    return Pet.objects.select_related("owner").annotate(
+        posts_total=count_related(Post, "pet"),
+        followers_total=count_related(Follow, "pet"),
+    )
 
 
 def pet_profile(request, pet_id):
-    """View pet profile."""
-    pet = get_object_or_404(Pet, pk=pet_id)
-    reviews = pet.reviews.all()[:3]  # Latest 3 reviews
-    
-    # Check if current user follows this pet
-    is_following = False
-    if request.user.is_authenticated:
-        is_following = Follow.objects.filter(follower=request.user, pet=pet).exists()
-    
-    return render(request, 'pets/profile.html', {
-        'pet': pet,
-        'reviews': reviews,
-        'is_following': is_following,
-    })
+    pet = get_object_or_404(_pet_with_counts(), pk=pet_id)
+    review_stats = pet.reviews.aggregate(total=Count("id"), average=Avg("rating"))
+    is_following = (
+        request.user.is_authenticated
+        and Follow.objects.filter(follower=request.user, pet=pet).exists()
+    )
+    return render(
+        request,
+        "pets/profile.html",
+        {
+            "pet": pet,
+            "posts": pet.posts.only("id", "image", "pet_id")[:30],
+            "reviews": pet.reviews.select_related("reviewer")[:3],
+            "review_stats": review_stats,
+            "is_following": is_following,
+        },
+    )
+
+
+def _follow_response(request, pet_id, is_following):
+    if request.htmx:
+        pet = get_object_or_404(_pet_with_counts(), pk=pet_id)
+        return render(
+            request,
+            "pets/_follow_button.html",
+            {"pet": pet, "is_following": is_following, "oob": True},
+        )
+    return redirect("pets:profile", pet_id=pet_id)
 
 
 @login_required
 @require_POST
 def follow_pet(request, pet_id):
-    """Follow a pet."""
     pet = get_object_or_404(Pet, pk=pet_id)
-    
-    if pet.owner == request.user:
-        return JsonResponse({'error': "You can't follow your own pet"}, status=400)
-    
-    follow, created = Follow.objects.get_or_create(follower=request.user, pet=pet)
-    
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({
-            'status': 'following',
-            'follower_count': pet.follower_count
-        })
-    
-    return redirect('pets:profile', pet_id=pet_id)
+    if pet.owner_id == request.user.id:
+        return HttpResponseBadRequest("You can't follow your own pet.")
+    Follow.objects.get_or_create(follower=request.user, pet=pet)
+    return _follow_response(request, pet_id, True)
 
 
 @login_required
 @require_POST
 def unfollow_pet(request, pet_id):
-    """Unfollow a pet."""
-    pet = get_object_or_404(Pet, pk=pet_id)
-    Follow.objects.filter(follower=request.user, pet=pet).delete()
-    
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        return JsonResponse({
-            'status': 'not_following',
-            'follower_count': pet.follower_count
-        })
-    
-    return redirect('pets:profile', pet_id=pet_id)
+    Follow.objects.filter(follower=request.user, pet_id=pet_id).delete()
+    return _follow_response(request, pet_id, False)
 
 
 @login_required
 def add_review(request, pet_id):
-    """Add a review for a pet."""
     pet = get_object_or_404(Pet, pk=pet_id)
-    
-    if pet.owner == request.user:
-        return redirect('pets:profile', pet_id=pet_id)
-    
-    if request.method == 'POST':
+    if pet.owner_id == request.user.id:
+        return redirect("pets:profile", pet_id=pet_id)
+
+    if request.method == "POST":
         form = ReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
             review.pet = pet
             review.reviewer = request.user
             review.save()
-            return redirect('pets:profile', pet_id=pet_id)
+            return redirect("pets:profile", pet_id=pet_id)
     else:
         form = ReviewForm()
-    
-    return render(request, 'pets/add_review.html', {'form': form, 'pet': pet})
+
+    return render(request, "pets/add_review.html", {"form": form, "pet": pet})
 
 
 def all_reviews(request, pet_id):
-    """View all reviews for a pet."""
     pet = get_object_or_404(Pet, pk=pet_id)
-    reviews = pet.reviews.all()
-    
-    return render(request, 'pets/all_reviews.html', {'pet': pet, 'reviews': reviews})
-
-
-
+    reviews = pet.reviews.select_related("reviewer")
+    review_stats = reviews.aggregate(total=Count("id"), average=Avg("rating"))
+    return render(
+        request,
+        "pets/all_reviews.html",
+        {"pet": pet, "reviews": reviews, "review_stats": review_stats},
+    )

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load media_tags %}
 
 {% block title %}{{ profile_user.name|default:profile_user.username }} - PetConnect{% endblock %}
 
@@ -9,7 +10,7 @@
         <div class="flex flex-col md:flex-row gap-8 items-start">
             <div class="flex-shrink-0">
                 {% if profile_user.profile_picture %}
-                <img src="{{ profile_user.profile_picture.url }}" alt="{{ profile_user.username }}" class="w-32 h-32 rounded-full object-cover">
+                <img src="{{ profile_user.profile_picture|resized:256 }}" alt="{{ profile_user.username }}" class="w-32 h-32 rounded-full object-cover">
                 {% else %}
                 <div class="w-32 h-32 rounded-full bg-brand flex items-center justify-center text-white text-4xl font-bold">
                     {{ profile_user.username|slice:":1"|upper }}
@@ -29,8 +30,8 @@
                 
                 <!-- Stats -->
                 <div class="flex gap-8 mb-4 text-sm">
-                    <span><strong>{{ profile_user.pet_count }}</strong> pets</span>
-                    <span><strong>{{ profile_user.follower_count }}</strong> followers</span>
+                    <span><strong>{{ pets|length }}</strong> pets</span>
+                    <span><strong>{{ follower_total }}</strong> followers</span>
                 </div>
                 
                 {% if profile_user.name %}
@@ -69,7 +70,7 @@
         <a href="{% url 'pets:profile' pet_id=pet.id %}" class="group">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 {% if pet.picture %}
-                <img src="{{ pet.picture.url }}" alt="{{ pet.name }}" class="w-full aspect-square object-cover group-hover:opacity-90 transition-opacity">
+                <img src="{{ pet.picture|resized:480 }}" loading="lazy" alt="{{ pet.name }}" class="w-full aspect-square object-cover group-hover:opacity-90 transition-opacity">
                 {% else %}
                 <div class="w-full aspect-square bg-brand flex items-center justify-center text-white text-4xl font-bold">
                     {{ pet.name|slice:":1" }}
@@ -79,8 +80,8 @@
                     <h3 class="font-bold">{{ pet.name }}</h3>
                     <p class="text-sm text-gray-500">{{ pet.breed|default:pet.species }}</p>
                     <div class="flex gap-4 mt-2 text-xs text-gray-400">
-                        <span>{{ pet.post_count }} posts</span>
-                        <span>{{ pet.follower_count }} followers</span>
+                        <span>{{ pet.posts_total }} post{{ pet.posts_total|pluralize }}</span>
+                        <span>{{ pet.followers_total }} follower{{ pet.followers_total|pluralize }}</span>
                     </div>
                 </div>
             </div>

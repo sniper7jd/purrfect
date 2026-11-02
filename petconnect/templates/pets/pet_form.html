@@ -1,26 +1,36 @@
 {% extends 'base.html' %}
+{% load static media_tags %}
 
-{% block title %}Add Pet - PetConnect{% endblock %}
+{% block title %}{% if pet %}Edit {{ pet.name }}{% else %}Add Pet{% endif %} - PetConnect{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto px-4 py-8">
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        {% if pet %}
+        <h1 class="text-3xl font-bold mb-2">Edit {{ pet.name }}</h1>
+        <p class="text-gray-500 mb-8">Update your pet's profile information. Fields marked with * are required.</p>
+        {% else %}
         <h1 class="text-3xl font-bold mb-2">Add Your Pet</h1>
         <p class="text-gray-500 mb-8">Tell us about your furry (or scaly, or feathery) friend! Fields marked with * are required.</p>
-        
+        {% endif %}
+
         {% if form.errors %}
         <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700">
             <p class="font-semibold mb-2">Please correct the following errors:</p>
             <ul class="list-disc list-inside text-sm">
                 {% for field, errors in form.errors.items %}
                     {% for error in errors %}
-                    <li>{{ field|title }}: {{ error }}</li>
+                    <li>{% if field != '__all__' %}{{ field|title }}: {% endif %}{{ error }}</li>
                     {% endfor %}
                 {% endfor %}
             </ul>
         </div>
         {% endif %}
-        
+
         <form method="post" enctype="multipart/form-data" class="space-y-6" id="pet-form">
             {% csrf_token %}
             
@@ -42,8 +52,9 @@
                         {{ form.breed }}
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{% if pet %}Update Picture{% else %}Profile Picture{% endif %}</label>
                         {{ form.picture }}
+                        {% if pet.picture %}<img src="{{ pet.picture|resized:160 }}" alt="Current photo of {{ pet.name }}" class="mt-2 w-20 h-20 rounded-xl object-cover">{% endif %}
                     </div>
                 </div>
                 
@@ -140,35 +151,24 @@
             <!-- Location -->
             <div class="space-y-4">
                 <h3 class="font-semibold text-lg border-b pb-2">Location & Availability</h3>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Location <span class="text-red-500">*</span></label>
+
+                <div data-location-picker>
+                    <label for="location-input" class="block text-sm font-medium text-gray-700 mb-1">Location <span class="text-red-500">*</span></label>
                     <div class="relative">
                         {{ form.location }}
-                        <button type="button" id="detect-location-btn" 
+                        <button type="button" data-detect-location
                                 class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 px-3 py-1.5 bg-brand/10 text-brand text-sm font-medium rounded-lg hover:bg-brand/20 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <line x1="12" y1="2" x2="12" y2="4"></line>
-                                <line x1="12" y1="20" x2="12" y2="22"></line>
-                                <line x1="2" y1="12" x2="4" y2="12"></line>
-                                <line x1="20" y1="12" x2="22" y2="12"></line>
-                            </svg>
-                            <span id="detect-btn-text">Auto-detect</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle><line x1="12" y1="2" x2="12" y2="4"></line><line x1="12" y1="20" x2="12" y2="22"></line><line x1="2" y1="12" x2="4" y2="12"></line><line x1="20" y1="12" x2="22" y2="12"></line></svg>
+                            <span data-detect-label>Use my location</span>
                         </button>
+                        <ul data-suggestions role="listbox" class="hidden absolute z-[1100] mt-1 w-full bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden"></ul>
                     </div>
-                    <input type="hidden" name="latitude" id="latitude">
-                    <input type="hidden" name="longitude" id="longitude">
-                    <input type="hidden" name="place_id" id="place_id">
-                    <p class="text-xs text-gray-500 mt-1">Start typing to search or click "Auto-detect" to use your current location</p>
+                    {{ form.latitude }}
+                    {{ form.longitude }}
+                    <p class="text-xs text-gray-500 mt-1">Start typing a neighborhood or city, or use your current location. Search by <a href="https://photon.komoot.io" class="underline" target="_blank" rel="noopener">Photon</a> (OpenStreetMap).</p>
+                    <div data-preview-map class="hidden mt-4 w-full h-48 rounded-xl bg-gray-100"></div>
                 </div>
-                
-                <!-- Mini Map Preview -->
-                <div id="location-preview" class="hidden">
-                    <div id="mini-map" class="w-full h-48 rounded-xl bg-gray-100"></div>
-                </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <label class="flex items-center gap-2 p-3 bg-green-50 rounded-lg hover:bg-green-100 cursor-pointer border border-green-200">
                         {{ form.available_for_playdate }}
@@ -180,157 +180,26 @@
                     </label>
                 </div>
             </div>
-            
+
             <div class="flex gap-4 pt-4">
                 <button type="submit" class="flex-1 bg-brand text-white py-3 rounded-xl font-semibold hover:bg-brand-dark transition-colors">
-                    Add Pet
+                    {% if pet %}Save Changes{% else %}Add Pet{% endif %}
                 </button>
-                <a href="{% url 'feed:home' %}" class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium">Cancel</a>
+                <a href="{% if pet %}{% url 'pets:profile' pet_id=pet.id %}{% else %}{% url 'feed:home' %}{% endif %}" class="px-6 py-3 text-gray-600 hover:text-gray-800 font-medium">Cancel</a>
             </div>
         </form>
+
+        {% if pet %}
+        <div class="mt-8 pt-8 border-t">
+            <a href="{% url 'pets:delete' pet_id=pet.id %}" class="text-red-500 hover:text-red-700 font-medium">Delete Pet</a>
+        </div>
+        {% endif %}
     </div>
 </div>
+{% endblock %}
 
-<script src="https://maps.googleapis.com/maps/api/js?key={{ PLACES_API_KEY }}&libraries=places"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('location-input');
-    const detectBtn = document.getElementById('detect-location-btn');
-    const detectBtnText = document.getElementById('detect-btn-text');
-    const locationPreview = document.getElementById('location-preview');
-    const miniMapDiv = document.getElementById('mini-map');
-    let map = null;
-    let marker = null;
-    
-    // Initialize Google Places Autocomplete
-    if (input && typeof google !== 'undefined') {
-        const autocomplete = new google.maps.places.Autocomplete(input, {
-            types: ['(cities)']
-        });
-        
-        autocomplete.addListener('place_changed', function() {
-            const place = autocomplete.getPlace();
-            if (place.geometry) {
-                const lat = place.geometry.location.lat();
-                const lng = place.geometry.location.lng();
-                document.getElementById('latitude').value = lat;
-                document.getElementById('longitude').value = lng;
-                document.getElementById('place_id').value = place.place_id || '';
-                
-                // Show map preview
-                showMapPreview(lat, lng, place.formatted_address || input.value);
-            }
-        });
-    }
-    
-    // Auto-detect location button
-    detectBtn?.addEventListener('click', function() {
-        if (!navigator.geolocation) {
-            alert('Geolocation is not supported by your browser.');
-            return;
-        }
-        
-        detectBtnText.textContent = 'Detecting...';
-        detectBtn.disabled = true;
-        
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                
-                document.getElementById('latitude').value = lat;
-                document.getElementById('longitude').value = lng;
-                
-                // Reverse geocode to get address
-                if (typeof google !== 'undefined') {
-                    const geocoder = new google.maps.Geocoder();
-                    geocoder.geocode({ location: { lat, lng } }, function(results, status) {
-                        if (status === 'OK' && results[0]) {
-                            // Find city, state from address components
-                            let city = '', state = '', country = '';
-                            for (const component of results[0].address_components) {
-                                if (component.types.includes('locality')) {
-                                    city = component.long_name;
-                                }
-                                if (component.types.includes('administrative_area_level_1')) {
-                                    state = component.short_name;
-                                }
-                                if (component.types.includes('country')) {
-                                    country = component.short_name;
-                                }
-                            }
-                            
-                            const locationText = city && state ? `${city}, ${state}` : results[0].formatted_address;
-                            input.value = locationText;
-                            document.getElementById('place_id').value = results[0].place_id || '';
-                            
-                            // Show map preview
-                            showMapPreview(lat, lng, locationText);
-                        }
-                        detectBtnText.textContent = 'Auto-detect';
-                        detectBtn.disabled = false;
-                    });
-                } else {
-                    input.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-                    detectBtnText.textContent = 'Auto-detect';
-                    detectBtn.disabled = false;
-                }
-            },
-            function(error) {
-                let message = 'Unable to detect location.';
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        message = 'Location access denied. Please allow location access in your browser settings.';
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        message = 'Location information unavailable.';
-                        break;
-                    case error.TIMEOUT:
-                        message = 'Location request timed out.';
-                        break;
-                }
-                alert(message);
-                detectBtnText.textContent = 'Auto-detect';
-                detectBtn.disabled = false;
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
-            }
-        );
-    });
-    
-    // Show map preview
-    function showMapPreview(lat, lng, title) {
-        locationPreview.classList.remove('hidden');
-        
-        if (!map) {
-            map = new google.maps.Map(miniMapDiv, {
-                zoom: 12,
-                center: { lat, lng },
-                disableDefaultUI: true,
-                zoomControl: true,
-                styles: [
-                    { featureType: "poi", stylers: [{ visibility: "off" }] }
-                ]
-            });
-        } else {
-            map.setCenter({ lat, lng });
-        }
-        
-        if (marker) {
-            marker.setMap(null);
-        }
-        
-        marker = new google.maps.Marker({
-            position: { lat, lng },
-            map: map,
-            title: title,
-            animation: google.maps.Animation.DROP
-        });
-    }
-    
-});
-</script>
+{% block extra_js %}
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script src="{% static 'js/maps.js' %}"></script>
+<script src="{% static 'js/location-picker.js' %}"></script>
 {% endblock %}
