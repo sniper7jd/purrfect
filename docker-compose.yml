@@ -1,0 +1,36 @@
+# Local stack: `docker compose up --build`, then open http://localhost:8000
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: petconnect
+      POSTGRES_USER: petconnect
+      POSTGRES_PASSWORD: petconnect
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U petconnect"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "True"
+      SECRET_KEY: local-docker-only
+      DATABASE_URL: postgres://petconnect:petconnect@db:5432/petconnect
+      ALLOWED_HOSTS: localhost,127.0.0.1
+      ABLY_API_KEY: ${ABLY_API_KEY:-}
+      CLOUDINARY_URL: ${CLOUDINARY_URL:-}
+    volumes:
+      - media:/app/petconnect/media
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  media:
