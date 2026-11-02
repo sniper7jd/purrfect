@@ -4,13 +4,13 @@
 
 **A social network and playdate matcher for pets.** Share your pet's moments, find compatible playmates nearby, and chat with other owners in real time.
 
-[![Live demo](https://img.shields.io/badge/live%20demo-open-c54a0d?style=for-the-badge)](https://petconnect-2gip.onrender.com)
+[![Live demo](https://img.shields.io/badge/live%20demo-open-c54a0d?style=for-the-badge)](https://purrfect-ml4d.onrender.com)
 [![CI](https://img.shields.io/github/actions/workflow/status/sniper7jd/purrfect/ci.yml?branch=main&style=for-the-badge&label=CI)](https://github.com/sniper7jd/purrfect/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.12-3776ab?style=for-the-badge&logo=python&logoColor=white)
 ![Django](https://img.shields.io/badge/django-5.2%20LTS-092e20?style=for-the-badge&logo=django&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
-**[Open the live demo](https://petconnect-2gip.onrender.com)**, then click **Try the live demo**. No sign-up is needed.
+**[Open the live demo](https://purrfect-ml4d.onrender.com)**, then click **Try the live demo**. No sign-up is needed.
 
 ![PetConnect feed, map, and mobile view](docs/social-preview.png)
 
